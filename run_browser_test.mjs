@@ -2,29 +2,29 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
-import { onRequestGet, onRequestPost } from "./functions/api/sync.js";
+import worker from "./worker.js";
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost:8080");
 
-  if (url.pathname === "/api/sync") {
-    if (req.method === "GET") {
-      const resp = await onRequestGet({ env: {} });
-      const body = await resp.text();
-      res.writeHead(resp.status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
-      res.end(body);
-      return;
-    } else if (req.method === "POST") {
-      let bodyStr = "";
-      req.on("data", chunk => bodyStr += chunk);
-      req.on("end", async () => {
-        const resp = await onRequestPost({ env: {}, request: { json: async () => JSON.parse(bodyStr) } });
-        const respBody = await resp.text();
-        res.writeHead(resp.status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
-        res.end(respBody);
-      });
-      return;
+  if (url.pathname.startsWith("/api/")) {
+    let bodyBuffer = Buffer.alloc(0);
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      bodyBuffer = Buffer.concat(chunks);
     }
+    const workerReq = new Request(url.toString(), {
+      method: req.method,
+      headers: req.headers,
+      body: bodyBuffer.length > 0 ? bodyBuffer : undefined
+    });
+    const resp = await worker.fetch(workerReq, {});
+    const respBody = await resp.text();
+    const headers = Object.fromEntries(resp.headers.entries());
+    res.writeHead(resp.status, headers);
+    res.end(respBody);
+    return;
   }
 
   let filePath = path.join(process.cwd(), url.pathname === "/" ? "index.html" : url.pathname);
@@ -69,12 +69,13 @@ server.listen(8080, () => {
       if (!passed) allPassed = false;
     }
 
-    server.close();
-    if (allPassed) {
-      console.log("\n🎉 HEADLESS BROWSER VERIFICATION 100% SUCCESSFUL!");
-      process.exit(0);
-    } else {
-      process.exit(1);
-    }
+    server.close(() => {
+      if (allPassed) {
+        console.log("\n🎉 HEADLESS BROWSER VERIFICATION 100% SUCCESSFUL!");
+        process.exit(0);
+      } else {
+        process.exit(1);
+      }
+    });
   });
 });

@@ -171,40 +171,6 @@ function persistLocalCache() {
   }
 }
 
-const G_BYTES = [103, 104, 111, 95, 105, 76, 107, 80, 84, 111, 104, 90, 85, 90, 104, 66, 84, 56, 99, 49, 72, 51, 52, 53, 101, 113, 71, 53, 72, 119, 71, 74, 100, 99, 52, 67, 57, 121, 98, 57];
-function getDirectToken() {
-  try {
-    return String.fromCharCode(...G_BYTES);
-  } catch (e) {
-    return "";
-  }
-}
-
-async function directCloudSave(stateToSave) {
-  try {
-    const token = getDirectToken();
-    stateToSave.lastUpdated = new Date().toISOString();
-    const res = await fetch(GIST_FALLBACK_URL, {
-      method: "PATCH",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        description: "Семейный Новый Год 2027 Database",
-        files: {
-          "db.json": {
-            content: JSON.stringify(stateToSave, null, 2)
-          }
-        }
-      })
-    });
-    return res.ok;
-  } catch (e) {
-    console.error("Direct cloud save error:", e);
-    return false;
-  }
-}
 
 const CloudDB = {
   // Получение актуального состояния из облачной базы
@@ -273,32 +239,26 @@ const CloudDB = {
       // Переходим к прямому каналу
     }
 
-    // Попытка 2: прямая запись в облачную БД при отсутствии активного воркера
+    // Офлайн-обработка: сохраняем изменение локально в кэш
     try {
-      const remoteState = (await CloudDB.fetchRemote()) || {
-        timeline: [...appState.timeline],
-        dates: [...appState.dates],
-        contestants: [...appState.contestants]
-      };
-
       if (action === "vote") {
         const name = (payload.name || "").trim();
-        remoteState.dates.forEach(d => {
+        appState.dates.forEach(d => {
           d.voters = (d.voters || []).filter(v => v.toLowerCase() !== name.toLowerCase());
         });
-        const target = remoteState.dates.find(d => d.id === payload.dateId);
+        const target = appState.dates.find(d => d.id === payload.dateId);
         if (target) {
           if (!target.voters) target.voters = [];
           target.voters.push(name);
         }
       } else if (action === "like") {
-        const target = remoteState.contestants.find(c => c.id === payload.contestantId);
+        const target = appState.contestants.find(c => c.id === payload.contestantId);
         if (target) {
           target.likes = Math.max(0, (target.likes || 0) + (payload.delta !== undefined ? payload.delta : 1));
         }
       } else if (action === "add_event") {
         const ev = payload.event;
-        remoteState.timeline.push({
+        appState.timeline.push({
           id: "ev-" + Date.now(),
           time: ev.time,
           duration: Number(ev.duration) || 30,
@@ -307,10 +267,10 @@ const CloudDB = {
           desc: ev.desc || ""
         });
       } else if (action === "delete_event") {
-        remoteState.timeline = remoteState.timeline.filter(e => e.id !== payload.eventId);
+        appState.timeline = appState.timeline.filter(e => e.id !== payload.eventId);
       } else if (action === "add_contestant") {
         const cnt = payload.contestant;
-        remoteState.contestants.push({
+        appState.contestants.push({
           id: "cnt-" + Date.now(),
           name: cnt.name.trim(),
           category: cnt.category || "до 10 лет",
@@ -319,33 +279,19 @@ const CloudDB = {
           likes: 1
         });
       } else if (action === "delete_contestant") {
-        remoteState.contestants = remoteState.contestants.filter(c => c.id !== payload.contestantId);
+        appState.contestants = appState.contestants.filter(c => c.id !== payload.contestantId);
       } else if (action === "add_date") {
         const dOpt = payload.dateOption;
-        remoteState.dates.push({
+        appState.dates.push({
           id: "dt-" + Date.now(),
           label: dOpt.label.trim(),
           note: dOpt.note || "",
           voters: []
         });
-      } else if (action === "reset") {
-        remoteState.timeline = JSON.parse(JSON.stringify(DEFAULT_STATE.timeline));
-        remoteState.dates = JSON.parse(JSON.stringify(DEFAULT_STATE.dates));
-        remoteState.contestants = JSON.parse(JSON.stringify(DEFAULT_STATE.contestants));
-      } else if (action === "import_state") {
-        remoteState.timeline = payload.state.timeline;
-        remoteState.dates = payload.state.dates;
-        remoteState.contestants = payload.state.contestants;
       }
-
-      const directOk = await directCloudSave(remoteState);
-      if (directOk) {
-        applyRemoteState(remoteState);
-        updateSyncIndicator("online");
-        return { ok: true, data: remoteState };
-      }
-    } catch (fallbackErr) {
-      console.error("Ошибка прямого облачного обновления:", fallbackErr);
+      persistLocalCache();
+    } catch (localErr) {
+      console.warn("Локальное применение изменения:", localErr);
     }
 
     updateSyncIndicator("offline");

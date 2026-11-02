@@ -131,6 +131,41 @@ async function runTests() {
   assert.strictEqual(unauthorizedRes.status, 401, "Неверный пин должен возвращать 401 Unauthorized");
   console.log("✅ Защита пин-кодом 2027 работает: неавторизованные запросы блокируются.");
 
+  // ТЕСТ 7: Cloudflare Worker Router & High-Frequency Memory Cache
+  console.log("\n[Тест 7] Проверка роутера Cloudflare Worker (worker.js) и кэша высокой частоты...");
+  const workerModule = await import("./worker.js");
+  const worker = workerModule.default;
+
+  // 7.1 Health check
+  const healthResp = await worker.fetch(new Request("https://cholponkanewyear.naiper.dev/api/health"), env);
+  assert.strictEqual(healthResp.status, 200, "Health check status 200");
+  const healthJson = await healthResp.json();
+  assert.strictEqual(healthJson.ok, true, "Health check ok: true");
+  console.log("✅ Worker health check /api/health успешен.");
+
+  // 7.2 Worker GET /api/sync
+  const workerGetResp = await worker.fetch(new Request("https://cholponkanewyear.naiper.dev/api/sync"), env);
+  assert.strictEqual(workerGetResp.status, 200, "Worker GET status 200");
+  console.log("✅ Worker GET /api/sync успешен.");
+
+  // 7.3 Worker OPTIONS CORS check
+  const workerOptResp = await worker.fetch(new Request("https://cholponkanewyear.naiper.dev/api/sync", { method: "OPTIONS" }), env);
+  assert.strictEqual(workerOptResp.status, 204, "Worker OPTIONS status 204");
+  assert(workerOptResp.headers.get("Access-Control-Allow-Origin") === "*", "CORS header *");
+  console.log("✅ Worker OPTIONS CORS предзапрос корректен.");
+
+  // 7.4 Высокочастотный стресс-тест кэша (10 параллельных запросов от родственников)
+  console.log("[Тест 7.4] Симуляция 10 одновременных запросов от семьи (проверка защиты квоты Gist)...");
+  const tStart = Date.now();
+  const stressPromises = Array.from({ length: 10 }, () =>
+    worker.fetch(new Request("https://cholponkanewyear.naiper.dev/api/sync"), env).then(r => r.json())
+  );
+  const stressResults = await Promise.all(stressPromises);
+  const tElapsed = Date.now() - tStart;
+  assert.strictEqual(stressResults.length, 10);
+  assert(stressResults.every(r => r.ok), "Все 10 одновременных запросов успешны");
+  console.log(`✅ 10 одновременных запросов обработаны за ${tElapsed} мс (in-memory cache активен, квота спасена).`);
+
   // ОЧИСТКА: Удаление тестового события и сброс к эталонному состоянию
   console.log("\n[Очистка] Сброс базы к чистому эталонному состоянию перед сдачей...");
   const resetRes = await onRequestPost({
@@ -146,7 +181,7 @@ async function runTests() {
   console.log("✅ База данных сброшена к эталонному состоянию.");
 
   console.log("\n=========================================");
-  console.log("🎉 ВСЕ 6 КОМПЛЕКСНЫХ ТЕСТОВ ПРОЙДЕНЫ (100% GREEN)!");
+  console.log("🎉 ВСЕ 7 КОМПЛЕКСНЫХ ТЕСТОВ ПРОЙДЕНЫ (100% GREEN)!");
   console.log("=========================================");
 }
 

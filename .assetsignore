@@ -1,0 +1,7 @@
+worker.js
+wrangler.json
+functions/**
+*.mjs
+*.md
+*.bat
+.git/**

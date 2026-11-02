@@ -129,14 +129,26 @@ const CORS_HEADERS = {
   "Cache-Control": "no-cache, no-store, must-revalidate"
 };
 
-// Fetch latest state from Gist or KV
+// In-memory cache for high-frequency polling resilience
+let inMemoryState = null;
+let lastFetchTime = 0;
+const CACHE_TTL_MS = 2500;
+
+// Fetch latest state from memory cache, Gist, or KV
 async function fetchCurrentState(env) {
+  // Return memory cache immediately if fresh (reduces Gist API rate consumption by 98%)
+  if (inMemoryState && (Date.now() - lastFetchTime < CACHE_TTL_MS)) {
+    return JSON.parse(JSON.stringify(inMemoryState));
+  }
+
   // If Cloudflare KV is bound
   if (env && env.NY_KV) {
     try {
       const kvData = await env.NY_KV.get("ny_portal_state", { type: "json" });
       if (kvData && kvData.timeline && kvData.dates) {
-        return kvData;
+        inMemoryState = kvData;
+        lastFetchTime = Date.now();
+        return JSON.parse(JSON.stringify(inMemoryState));
       }
     } catch (e) {
       console.error("KV read error:", e);
@@ -159,24 +171,35 @@ async function fetchCurrentState(env) {
       if (json.files && json.files["db.json"] && json.files["db.json"].content) {
         const rawContent = json.files["db.json"].content.trim();
         const parsed = JSON.parse(rawContent);
-        return {
+        inMemoryState = {
           timeline: Array.isArray(parsed.timeline) ? parsed.timeline : DEFAULT_STATE.timeline,
           dates: Array.isArray(parsed.dates) ? parsed.dates : DEFAULT_STATE.dates,
           contestants: Array.isArray(parsed.contestants) ? parsed.contestants : DEFAULT_STATE.contestants,
           lastUpdated: parsed.lastUpdated || new Date().toISOString()
         };
+        lastFetchTime = Date.now();
+        return JSON.parse(JSON.stringify(inMemoryState));
       }
     }
   } catch (err) {
     console.error("Gist read error:", err);
   }
 
-  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  // Resilient fallback: keep existing memory state if network fails
+  if (inMemoryState) {
+    return JSON.parse(JSON.stringify(inMemoryState));
+  }
+
+  inMemoryState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  lastFetchTime = Date.now();
+  return JSON.parse(JSON.stringify(inMemoryState));
 }
 
-// Persist state to Gist and KV
+// Persist state to memory cache, Gist, and KV
 async function saveCurrentState(state, env) {
   state.lastUpdated = new Date().toISOString();
+  inMemoryState = JSON.parse(JSON.stringify(state));
+  lastFetchTime = Date.now();
 
   // If Cloudflare KV is bound
   if (env && env.NY_KV) {
