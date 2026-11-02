@@ -528,6 +528,7 @@ function renderTimeline() {
 
     return `
       <div class="timeline-card ${appState.isAdmin ? "has-actions" : ""}">
+        <div class="timeline-spine-dot"></div>
         <div class="timeline-time-block">
           <span class="timeline-start-time">${escapeHtml(item.time)}</span>
           <span class="timeline-dur-badge">${escapeHtml(String(item.duration))} мин</span>
@@ -591,11 +592,17 @@ function renderVoting() {
       return `<span class="voter-tag ${isMe ? "voter-tag-me" : ""}">${escapeHtml(name)}${isMe ? " (Вы)" : ""}</span>`;
     }).join("");
 
+    const isLeader = count === maxVotes && count > 0;
+    const leaderBadge = isLeader ? `<span class="vote-leader-tag">🏆 Лидер</span>` : "";
+
     return `
       <div class="vote-card ${isSelected ? "selected" : ""}" onclick="selectDateOption('${d.id}')">
         <div class="vote-card-header">
           <span class="vote-date-title">${escapeHtml(d.label)}</span>
-          <span class="vote-count-badge">${count} голосов</span>
+          <div class="vote-badges-group">
+            ${leaderBadge}
+            <span class="vote-count-badge">${count} голосов</span>
+          </div>
         </div>
         ${d.note ? `<p class="vote-note">${escapeHtml(d.note)}</p>` : ""}
         <div class="vote-progress-bar">
@@ -1120,31 +1127,111 @@ function initSnowCanvas() {
 }
 
 // ==========================================
-// 13. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
+// 13. ЖИВОЙ ТАЙМЕР ОБРАТНОГО ОТСЧЕТА ДО 2027 ГОДА
+// ==========================================
+function initCountdown() {
+  // Целевая дата: 1 января 2027 00:00:00 (Бишкек / UTC+6)
+  const TARGET_DATE = new Date("2027-01-01T00:00:00+06:00").getTime();
+
+  function update() {
+    const now = Date.now();
+    const diff = TARGET_DATE - now;
+
+    const dEl = document.getElementById("cntDays");
+    const hEl = document.getElementById("cntHours");
+    const mEl = document.getElementById("cntMinutes");
+    const sEl = document.getElementById("cntSeconds");
+
+    if (diff <= 0) {
+      if (dEl) dEl.textContent = "00";
+      if (hEl) hEl.textContent = "00";
+      if (mEl) mEl.textContent = "00";
+      if (sEl) sEl.textContent = "00";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    if (dEl) dEl.textContent = String(days).padStart(2, "0");
+    if (hEl) hEl.textContent = String(hours).padStart(2, "0");
+    if (mEl) mEl.textContent = String(minutes).padStart(2, "0");
+    if (sEl) sEl.textContent = String(seconds).padStart(2, "0");
+  }
+
+  update();
+  setInterval(update, 1000);
+}
+
+// ==========================================
+// 14. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   // Инициализация темы Quiet Luxury
   initThemeSwitcher();
 
-  // Навигация по вкладкам
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabPanes = document.querySelectorAll(".tab-pane");
+  // Живой таймер обратного отсчета
+  initCountdown();
 
+  // Плавная навигация по разделам лендинга
+  function navigateTo(targetId) {
+    playSound("tab");
+    if (targetId === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const targetElement = document.getElementById(`tab-${targetId}`) || document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  // Навигация по верхним вкладкам
+  const tabButtons = document.querySelectorAll(".tab-btn");
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      playSound("tab");
       const target = btn.dataset.tab;
-
+      navigateTo(target);
       tabButtons.forEach(b => b.classList.remove("active"));
-      tabPanes.forEach(p => p.classList.remove("active"));
-
       btn.classList.add("active");
-      const targetPane = document.getElementById(`tab-${target}`);
-      if (targetPane) {
-        targetPane.classList.add("active");
-      }
     });
   });
+
+  // Навигация по нижнему плавающему доку (Floating Glass Dock)
+  const dockButtons = document.querySelectorAll(".dock-btn");
+  dockButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.dock;
+      navigateTo(target);
+      dockButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // Автоматическая подсветка текущего раздела при скролле (ScrollSpy)
+  const sections = document.querySelectorAll(".portal-section");
+  if ("IntersectionObserver" in window && sections.length > 0) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id.replace("tab-", "");
+          tabButtons.forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.tab === sectionId);
+          });
+          dockButtons.forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.dock === sectionId);
+          });
+        }
+      });
+    }, {
+      rootMargin: "-15% 0px -65% 0px",
+      threshold: 0.05
+    });
+
+    sections.forEach(s => observer.observe(s));
+  }
 
   const submitVoteBtn = document.getElementById("submitVoteBtn");
   const voterNameInput = document.getElementById("voterNameInput");

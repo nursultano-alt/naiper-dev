@@ -3,19 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Семейный Новый Год 2027 // План, Голосование и Конкурс</title>
-  <!-- Premium Fonts: Cinzel (акценты и цифры), Outfit (UI & кнопки), Plus Jakarta Sans (текст) -->
+  <title>Семейный Новый Год 2027 // Праздничный Портал • Чолпонка</title>
+  <!-- Premium Fonts: Cinzel (акценты, цифры и заголовки), Outfit (UI, кнопки и метрики), Plus Jakarta Sans (текст) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2027.luxury2">
+  <link rel="stylesheet" href="style.css?v=2027.boost">
 </head>
 <body data-theme="ivory">
   <!-- Фоновый снегопад Canvas 60 FPS -->
   <canvas id="snowCanvas"></canvas>
 
+  <div id="top"></div>
+
   <div class="app-container">
-    <!-- Шапка портала -->
+    <!-- ==========================================
+         HERO SECTION: ШАПКА ПОРТАЛА И ТАЙМЕР
+         ========================================== -->
     <header class="hero-header">
       
       <!-- Верхняя панель: Бейдж портала и тактильный переключатель тем -->
@@ -51,125 +55,293 @@
         </h1>
 
         <div class="hero-festive-subtitle">
-          🎄 Праздничный план дня • Голосование дат • Детский конкурс 🎄
+          🎄 Праздничный дастархан • Выбор даты • Программа дня • Детский конкурс 🎄
+        </div>
+
+        <!-- Живой таймер обратного отсчета до Нового Года 2027 -->
+        <div class="hero-countdown-box" id="countdownCard">
+          <div class="countdown-eyebrow">⏳ ДО ВСТРЕЧИ НОВОГО ГОДА 2027 ОСТАЛОСЬ:</div>
+          <div class="countdown-grid">
+            <div class="countdown-cell">
+              <span class="countdown-val" id="cntDays">--</span>
+              <span class="countdown-unit">Дней</span>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-cell">
+              <span class="countdown-val" id="cntHours">--</span>
+              <span class="countdown-unit">Часов</span>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-cell">
+              <span class="countdown-val" id="cntMinutes">--</span>
+              <span class="countdown-unit">Минут</span>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-cell">
+              <span class="countdown-val" id="cntSeconds">--</span>
+              <span class="countdown-unit">Секунд</span>
+            </div>
+          </div>
         </div>
 
         <!-- Индикатор живой облачной базы данных -->
-        <div class="db-sync-bar" id="dbSyncStatusBar" title="Единая база данных для всех родственников">
+        <div class="db-sync-bar" id="dbSyncStatusBar" title="Нажмите для принудительного обновления облачной базы данных">
           <span class="db-sync-pulse" id="dbSyncPulse"></span>
           <span class="db-sync-text" id="dbSyncText">Облачная база: В сети • Живая синхронизация</span>
           <span class="db-sync-time" id="dbSyncTime">только что</span>
         </div>
+
+        <!-- Быстрые ключевые показатели вечера (Bento Metrics) -->
+        <div class="hero-metrics-strip">
+          <div class="metric-pill">
+            <span class="metric-icon">👑</span>
+            <div class="metric-body">
+              <span class="metric-title">Чолпонка</span>
+              <span class="metric-sub">Организатор торжества</span>
+            </div>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-icon">📅</span>
+            <div class="metric-body">
+              <span class="metric-title">4 Варианта дат</span>
+              <span class="metric-sub">Идет семейное голосование</span>
+            </div>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-icon">🕒</span>
+            <div class="metric-body">
+              <span class="metric-title">6+ Событий</span>
+              <span class="metric-sub">Поминутный таймлайн</span>
+            </div>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-icon">🎭</span>
+            <div class="metric-body">
+              <span class="metric-title">Детский конкурс</span>
+              <span class="metric-sub">Костюмы и памятные призы</span>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <!-- Навигационные вкладки -->
-      <nav class="nav-tabs">
-        <button class="tab-btn active" data-tab="timeline">
+      <!-- Навигационные кнопки быстрого скролла -->
+      <nav class="nav-tabs" aria-label="Быстрый переход по секциям портала">
+        <button class="tab-btn" data-tab="voting">
+          <span class="tab-icon">🗳️</span>
+          <span class="tab-text">Выбор даты</span>
+        </button>
+        <button class="tab-btn" data-tab="timeline">
           <span class="tab-icon">🕒</span>
           <span class="tab-text">План дня</span>
         </button>
-        <button class="tab-btn" data-tab="voting">
-          <span class="tab-icon">🗳️</span>
-          <span class="tab-text">Голосование дат</span>
-        </button>
         <button class="tab-btn" data-tab="contest">
           <span class="tab-icon">🎭</span>
-          <span class="tab-text">Конкурс детей</span>
+          <span class="tab-text">Детский конкурс</span>
+        </button>
+        <button class="tab-btn" data-tab="traditions">
+          <span class="tab-icon">🎄</span>
+          <span class="tab-text">Памятка &amp; Традиции</span>
         </button>
         <button class="tab-btn admin-tab" data-tab="admin">
-          <span class="tab-icon">⚙️</span>
+          <span class="tab-icon">👑</span>
           <span class="tab-text">Кабинет Чолпонки</span>
         </button>
       </nav>
     </header>
 
-    <!-- Основной контент -->
+    <!-- ==========================================
+         MAIN CONTENT: ВСЕ СЕКЦИИ В ЕДИНОМ ПРОСТОРНОМ ЛЕНДИНГЕ
+         ========================================== -->
     <main class="main-content">
 
-      <!-- ================= 1. ВКЛАДКА: ПЛАН ДНЯ (ТАЙМЛАЙН) ================= -->
-      <section id="tab-timeline" class="tab-pane active">
+      <!-- ================= 1. СЕКЦИЯ: ГОЛОСОВАНИЕ ПО ДАТАМ ================= -->
+      <section id="tab-voting" class="portal-section tab-pane active">
+        <div class="section-chapter-tag">
+          <span class="chapter-line"></span>
+          <span class="chapter-badge">СЕКЦИЯ 01</span>
+          <span class="chapter-line"></span>
+        </div>
+
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Когда собираемся всей семьей?</h2>
+            <p class="pane-desc">Выберите наиболее удобный день для общего сбора. Голос сохраняется в облачной базе и вы можете изменить выбор в любой момент!</p>
+          </div>
+        </div>
+
+        <!-- Просторная Bento-сетка вариантов дат (рендерится через JS) -->
+        <div class="voting-grid" id="votingGrid">
+          <!-- Рендерится через JS -->
+        </div>
+
+        <!-- Форма фиксации голоса родственника -->
+        <div class="user-vote-box glass-card">
+          <div class="vote-box-header">
+            <span class="vote-box-icon">✍️</span>
+            <div>
+              <h3 class="vote-box-title">Ваше имя и подтверждение голоса</h3>
+              <p class="vote-box-subtitle">Нажмите на карточку даты выше, введите имя и нажмите кнопку</p>
+            </div>
+          </div>
+          <div class="vote-input-row">
+            <input type="text" id="voterNameInput" class="custom-input" placeholder="Введите ваше имя (напр. Медер, Дастан, Айнагуль Эже...)">
+            <button class="primary-btn" id="submitVoteBtn">
+              <span>Зафиксировать голос</span>
+              <span class="btn-arrow">✓</span>
+            </button>
+          </div>
+          <p class="vote-hint">💡 Ваш голос моментально синхронизируется на телефонах всех родственников.</p>
+        </div>
+      </section>
+
+      <!-- ================= 2. СЕКЦИЯ: ПЛАН ДНЯ (ТАЙМЛАЙН) ================= -->
+      <section id="tab-timeline" class="portal-section tab-pane active">
+        <div class="section-chapter-tag">
+          <span class="chapter-line"></span>
+          <span class="chapter-badge">СЕКЦИЯ 02</span>
+          <span class="chapter-line"></span>
+        </div>
+
         <div class="pane-header">
           <div>
             <h2 class="pane-title">Расписание праздничного дня</h2>
-            <p class="pane-desc">Точный таймлайн с длительностью каждого события от организатора</p>
+            <p class="pane-desc">Поминутный сценарий праздника от организатора Чолпонки, чтобы вечер прошел душевно, весело и организованно</p>
           </div>
           <div class="timeline-summary-pill" id="totalDurationBadge">
             ⏳ Итого: 0 ч 0 мин
           </div>
         </div>
 
+        <!-- Вертикальный дизайнерский таймлайн со связующими линиями (рендерится через JS) -->
         <div class="timeline-container" id="timelineList">
           <!-- Рендерится через JS -->
         </div>
       </section>
 
-      <!-- ================= 2. ВКЛАДКА: ГОЛОСОВАНИЕ ПО ДАТАМ ================= -->
-      <section id="tab-voting" class="tab-pane">
-        <div class="pane-header">
-          <div>
-            <h2 class="pane-title">Когда собираемся всей семьей?</h2>
-            <p class="pane-desc">Выберите наиболее удобный день для встречи (выбор можно изменить в любой момент)</p>
-          </div>
+      <!-- ================= 3. СЕКЦИЯ: ДЕТСКИЙ КОНКУРС ================= -->
+      <section id="tab-contest" class="portal-section tab-pane active">
+        <div class="section-chapter-tag">
+          <span class="chapter-line"></span>
+          <span class="chapter-badge">СЕКЦИЯ 03</span>
+          <span class="chapter-line"></span>
         </div>
 
-        <div class="voting-grid" id="votingGrid">
-          <!-- Рендерится через JS -->
-        </div>
-
-        <div class="user-vote-box glass-card">
-          <h3 class="vote-box-title">👋 Ваше имя и голос</h3>
-          <div class="vote-input-row">
-            <input type="text" id="voterNameInput" class="custom-input" placeholder="Введите ваше имя (напр. Медер, Дастан...)">
-            <button class="primary-btn" id="submitVoteBtn">
-              <span>Зафиксировать голос</span>
-              <span class="btn-arrow">✓</span>
-            </button>
-          </div>
-          <p class="vote-hint">💡 Вы можете поменять свой выбор в любой момент, введя то же имя.</p>
-        </div>
-      </section>
-
-      <!-- ================= 3. ВКЛАДКА: ДЕТСКИЙ КОНКУРС ================= -->
-      <section id="tab-contest" class="tab-pane">
         <div class="pane-header">
           <div>
             <h2 class="pane-title">Новогодний конкурс костюмов и талантов</h2>
-            <p class="pane-desc">Номера, пародии, танцы и узнаваемые костюмы с подарками от организаторов!</p>
+            <p class="pane-desc">Яркие творческие номера, сказочные образы и праздничные подарки каждому юному участнику от Чолпонки!</p>
           </div>
         </div>
 
-        <!-- Правила конкурса -->
+        <!-- Правила конкурса от Чолпонки -->
         <div class="contest-rules-banner glass-card">
           <div class="rules-header">
-            <span class="rules-badge">Условия конкурса от Чолпонки</span>
+            <span class="crown-icon">👑</span>
+            <span class="rules-badge">Условия конкурса от организатора Чолпонки</span>
+            <span class="sparkle-icon">✨</span>
           </div>
           <div class="rules-columns">
             <div class="rule-col">
               <span class="col-icon">🎈</span>
-              <strong>До 10 лет:</strong>
-              <p>Необычный костюм, грим, спеть песенку, станцевать, спародировать персонажа или показать сценку — каждый участник получает приз!</p>
+              <strong>Младшая группа (до 10 лет):</strong>
+              <p>Необычный костюм, грим, спеть новогоднюю песенку, рассказать стишок, станцевать или спародировать персонажа. Каждый маленький участник обязательно получает памятный подарок!</p>
             </div>
             <div class="rule-col">
               <span class="col-icon">⭐</span>
-              <strong>10–18 лет:</strong>
-              <p>Более строгие критерии и весомый приз: полностью проработанный узнаваемый образ, грим и полноценный отрепетированный творческий номер.</p>
+              <strong>Старшая группа (10–18 лет):</strong>
+              <p>Более строгие критерии и весомый приз: полностью проработанный узнаваемый сценический образ, грим, реквизит и полноценный отрепетированный номер. Борьба за главный приз вечера!</p>
             </div>
           </div>
         </div>
 
-        <!-- Сетка участников конкурса -->
+        <!-- Сетка участников детского конкурса (рендерится через JS) -->
         <div class="participants-grid" id="contestList">
           <!-- Рендерится через JS -->
         </div>
       </section>
 
-      <!-- ================= 4. ВКЛАДКА: КАБИНЕТ ОРГАНИЗАТОРА (ЧОЛПОНКА) ================= -->
-      <section id="tab-admin" class="tab-pane">
+      <!-- ================= 4. СЕКЦИЯ: СЕМЕЙНЫЕ ТРАДИЦИИ И ПАМЯТКА ================= -->
+      <section id="tab-traditions" class="portal-section tab-pane active">
+        <div class="section-chapter-tag">
+          <span class="chapter-line"></span>
+          <span class="chapter-badge">СЕКЦИЯ 04</span>
+          <span class="chapter-line"></span>
+        </div>
+
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Семейный дастархан и памятка</h2>
+            <p class="pane-desc">Маленькие детали и добрые традиции, которые создают неповторимую атмосферу семейного уюта</p>
+          </div>
+        </div>
+
+        <div class="traditions-bento-grid">
+          <div class="tradition-card glass-card">
+            <div class="tradition-icon-box">👗</div>
+            <div class="tradition-content">
+              <h3 class="tradition-title">Праздничный дресс-код (Quiet Luxury)</h3>
+              <p class="tradition-text">
+                Теплые и благородные тона: бежевый, кашемировый, слоновая кость, шоколад и мерцающее золото. 
+                Создаем гармоничный стиль для великолепных общих семейных фотографий.
+              </p>
+            </div>
+          </div>
+
+          <div class="tradition-card glass-card">
+            <div class="tradition-icon-box">🎁</div>
+            <div class="tradition-content">
+              <h3 class="tradition-title">Тайный Дед Мороз (Подарок от сердца)</h3>
+              <p class="tradition-text">
+                Каждый участник готовит один душевный подарок с открыткой и теплыми пожеланиями (в бюджете 1 000 – 1 500 сом). 
+                Вручение у новогодней ёлки с добрыми словами и объятиями!
+              </p>
+            </div>
+          </div>
+
+          <div class="tradition-card glass-card">
+            <div class="tradition-icon-box">🍲</div>
+            <div class="tradition-content">
+              <h3 class="tradition-title">Фирменный дастархан</h3>
+              <p class="tradition-text">
+                Горячие традиционные семейные блюда, праздничные салаты, восточные сладости для детворы 
+                и ароматный горячий чай с горными травами к неспешной беседе.
+              </p>
+            </div>
+          </div>
+
+          <div class="tradition-card glass-card">
+            <div class="tradition-icon-box">📸</div>
+            <div class="tradition-content">
+              <h3 class="tradition-title">Семейный архив и салют</h3>
+              <p class="tradition-text">
+                Общее фото всех поколений нашей дружной семьи у большой ёлки, бенгальские огни, 
+                запись теплых видеопоздравлений для тех, кто вдалеке, и праздничный фейерверк во дворе!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. СЕКЦИЯ: КАБИНЕТ ОРГАНИЗАТОРА (ЧОЛПОНКА) ================= -->
+      <section id="tab-admin" class="portal-section tab-pane active">
+        <div class="section-chapter-tag">
+          <span class="chapter-line"></span>
+          <span class="chapter-badge">СЕКЦИЯ 05</span>
+          <span class="chapter-line"></span>
+        </div>
+
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Кабинет организатора • Чолпонка 👑</h2>
+            <p class="pane-desc">Панель управления программой, регистрацией участников и опросом дат (доступ защищен PIN-кодом)</p>
+          </div>
+        </div>
+
         <!-- Блок авторизации админа -->
         <div id="adminAuthLock" class="glass-card auth-card">
           <div class="lock-icon">🔐</div>
-          <h2 class="auth-title">Кабинет Организатора</h2>
-          <p class="auth-desc">Доступ для Чолпонки для гибкой настройки расписания и управления праздником</p>
+          <h2 class="auth-title">Вход в панель организатора</h2>
+          <p class="auth-desc">Доступ для Чолпонки для гибкой настройки расписания, добавления конкурсантов и управления праздником</p>
           <div class="auth-input-group">
             <input type="password" id="adminPassInput" class="custom-input" placeholder="Введите пин-код (по умолч. 2027)" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
             <button class="primary-btn" id="adminLoginBtn">Войти в панель</button>
@@ -184,7 +356,7 @@
               <span class="greeting-icon">👑</span>
               <div>
                 <h3>Панель управления • Чолпонка</h3>
-                <p>Все изменения сразу сохраняются и обновляют портал</p>
+                <p>Все изменения сразу сохраняются в облачной базе данных и обновляют экраны родственников</p>
               </div>
             </div>
             <div class="admin-actions">
@@ -292,13 +464,43 @@
 
     <!-- Подвал -->
     <footer class="app-footer">
-      <p>Создано для дружной семьи • Домен <b>naiper.dev</b> • Новый Год 2027</p>
+      <div class="footer-seal">👑 2027 ✦ СЕМЕЙНЫЙ НОВЫЙ ГОД ✦ ЧОЛПОНКА 👑</div>
+      <p class="footer-text">Создано с любовью для дружной семьи • Домен <b>naiper.dev</b> • Новый Год 2027</p>
+      <div class="footer-sub">Единая облачная синхронизация • Высокая скорость отклика 60 FPS</div>
     </footer>
   </div>
+
+  <!-- Плавающий стеклянный док для мобильной и десктопной навигации (Floating Glass Dock) -->
+  <nav class="floating-dock" aria-label="Плавающая панель навигации">
+    <button class="dock-btn" data-dock="voting" title="Выбор даты встречи">
+      <span class="dock-icon">🗳️</span>
+      <span class="dock-text">Даты</span>
+    </button>
+    <button class="dock-btn" data-dock="timeline" title="Расписание дня">
+      <span class="dock-icon">🕒</span>
+      <span class="dock-text">План</span>
+    </button>
+    <button class="dock-btn" data-dock="contest" title="Детский конкурс">
+      <span class="dock-icon">🎭</span>
+      <span class="dock-text">Конкурс</span>
+    </button>
+    <button class="dock-btn" data-dock="traditions" title="Памятка и традиции">
+      <span class="dock-icon">🎄</span>
+      <span class="dock-text">Памятка</span>
+    </button>
+    <button class="dock-btn" data-dock="admin" title="Кабинет Чолпонки">
+      <span class="dock-icon">👑</span>
+      <span class="dock-text">Чолпонка</span>
+    </button>
+    <button class="dock-btn dock-scroll-top" data-dock="top" title="Наверх страницы">
+      <span class="dock-icon">▲</span>
+      <span class="dock-text">Вверх</span>
+    </button>
+  </nav>
 
   <!-- Модальное уведомление -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js?v=2027.luxury2"></script>
+  <script src="app.js?v=2027.boost"></script>
 </body>
 </html>
