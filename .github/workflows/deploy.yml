@@ -1,4 +1,4 @@
-name: Build, Test & Deploy New Year Portal to Cloudflare
+name: Build, Test and Deploy to Cloudflare
 
 on:
   push:
@@ -19,13 +19,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      - name: Run Database Sync & Integration Tests
+      - name: Run Integration Tests
         run: node test_portal_sync.mjs
 
-      - name: Build Clean Production Bundle (dist)
+      - name: Build Production Bundle (dist)
         run: node build_dist.mjs
 
       - name: Upload Production Bundle Artifact
@@ -37,19 +34,20 @@ jobs:
             dist_production_bundle.zip
           retention-days: 30
 
-      - name: Deploy to Cloudflare
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+      - name: Deploy to Cloudflare (Wrangler)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
-
-      - name: Deployment Notice (If Token Missing)
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
         run: |
-          echo "::warning title=Cloudflare Token Missing::Секрет CLOUDFLARE_API_TOKEN не настроен в репозитории GitHub. Бандл успешно собран и сохранен в Artifacts. Для включения авто-деплоя при git push добавьте CLOUDFLARE_API_TOKEN в Settings -> Secrets -> Actions."
-          echo "### ⚠️ Cloudflare Deployment Notice" >> $GITHUB_STEP_SUMMARY
-          echo "Для автоматического обновления живого домена **naiper.dev** через GitHub Actions:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Откройте: https://github.com/nursultano-alt/naiper-dev/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
-          echo "2. Добавьте секрет **CLOUDFLARE_API_TOKEN**" >> $GITHUB_STEP_SUMMARY
-          echo "Либо выполните деплой в 1 клик с локального ПК через **deploy_prod.bat**." >> $GITHUB_STEP_SUMMARY
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying to Cloudflare via Wrangler..."
+            npm install -g wrangler
+            npx wrangler deploy
+          else
+            echo "::warning title=Cloudflare Token Missing::Секрет CLOUDFLARE_API_TOKEN не настроен в репозитории GitHub. Бандл успешно собран и сохранен в Artifacts."
+            echo "### ⚠️ Cloudflare Deployment Notice" >> $GITHUB_STEP_SUMMARY
+            echo "Для автоматического обновления живого домена **naiper.dev** через GitHub Actions:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Откройте: https://github.com/nursultano-alt/naiper-dev/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
+            echo "2. Добавьте секрет **CLOUDFLARE_API_TOKEN**" >> $GITHUB_STEP_SUMMARY
+            echo "Либо выполните деплой в 1 клик с локального ПК через **deploy_prod.bat**." >> $GITHUB_STEP_SUMMARY
+          fi
