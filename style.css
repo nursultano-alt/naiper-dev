@@ -82,44 +82,120 @@ body {
    ========================================================================== */
 .hero-header {
   text-align: center;
-  padding: 24px 12px 10px;
+  padding: 16px 12px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .header-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 0.84rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--accent-gold);
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: var(--radius-full);
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
 }
 
-.hero-title {
+/* Главная акцентная карточка ЧОЛПОНКА + НОВЫЙ ГОД */
+.hero-highlight-card {
+  width: 100%;
+  max-width: 780px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.15) 0%, rgba(16, 28, 48, 0.85) 70%);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(251, 191, 36, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-highlight-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+}
+
+.hero-organizer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 22px;
+  background: rgba(251, 191, 36, 0.14);
+  border: 1.5px solid rgba(251, 191, 36, 0.5);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+  animation: pulseGold 3s ease-in-out infinite;
+}
+
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.25); border-color: rgba(251, 191, 36, 0.45); }
+  50% { box-shadow: 0 0 28px rgba(251, 191, 36, 0.55); border-color: rgba(251, 191, 36, 0.85); }
+}
+
+.crown-icon, .sparkle-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+}
+
+.organizer-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #fef08a;
+  text-transform: uppercase;
+}
+
+.organizer-name-glow {
   font-family: var(--font-heading);
-  font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 30%, #e2e8f0 70%, var(--accent-gold) 100%);
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 20%, #fef08a 60%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6));
 }
 
-.hero-subtitle {
-  color: var(--text-muted);
-  font-size: clamp(0.95rem, 2vw, 1.1rem);
-  max-width: 620px;
+/* Огромный кристально-четкий заголовок НОВЫЙ ГОД 2027 */
+.hero-title-massive {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 30px rgba(56, 189, 248, 0.4);
+  margin-top: 4px;
+}
+
+.hero-festive-subtitle {
+  color: #cbd5e1;
+  font-size: clamp(0.92rem, 2vw, 1.08rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 /* ==========================================================================
