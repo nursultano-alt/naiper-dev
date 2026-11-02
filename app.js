@@ -1000,8 +1000,8 @@ function initSnowCanvas() {
       y: Math.random() * height,
       r: Math.random() * 2.2 + 0.8,
       speedY: Math.random() * 0.9 + 0.4,
-      speedX: (Math.random() - 0.5) * 0.5,
-      opacity: Math.random() * 0.6 + 0.2
+      speedX: (Math.random() - 0.5) * 0.4,
+      opacity: Math.random() * 0.25 + 0.22
     });
   }
 
@@ -1010,7 +1010,7 @@ function initSnowCanvas() {
     for (let f of flakes) {
       ctx.beginPath();
       ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
+      ctx.fillStyle = `rgba(200, 185, 170, ${f.opacity})`;
       ctx.fill();
 
       f.y += f.speedY;

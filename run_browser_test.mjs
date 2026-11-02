@@ -69,13 +69,12 @@ server.listen(8080, () => {
       if (!passed) allPassed = false;
     }
 
-    server.close(() => {
-      if (allPassed) {
-        console.log("\n🎉 HEADLESS BROWSER VERIFICATION 100% SUCCESSFUL!");
-        process.exit(0);
-      } else {
-        process.exit(1);
-      }
-    });
+    if (allPassed) {
+      console.log("\n🎉 HEADLESS BROWSER VERIFICATION 100% SUCCESSFUL!");
+    }
+    server.close();
+    setTimeout(() => {
+      process.exit(allPassed ? 0 : 1);
+    }, 150);
   });
 });
