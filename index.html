@@ -34,6 +34,13 @@
         <div class="hero-festive-subtitle">
           🎄 Праздничный план дня • Голосование дат • Детский конкурс 🎄
         </div>
+
+        <!-- Индикатор живой облачной базы данных -->
+        <div class="db-sync-bar" id="dbSyncStatusBar" title="Единая база данных для всех родственников">
+          <span class="db-sync-pulse" id="dbSyncPulse"></span>
+          <span class="db-sync-text" id="dbSyncText">Облачная база: В сети • Живая синхронизация</span>
+          <span class="db-sync-time" id="dbSyncTime">только что</span>
+        </div>
       </div>
       
       <!-- Навигационные вкладки -->
@@ -163,6 +170,8 @@
             </div>
             <div class="admin-actions">
               <button class="secondary-btn" id="adminExportBtn">📥 Сохранить копию</button>
+              <button class="secondary-btn" id="adminImportBtn">📤 Загрузить копию</button>
+              <input type="file" id="adminFileInput" accept=".json" style="display:none">
               <button class="secondary-btn" id="adminResetBtn">🔄 Сброс по умолчанию</button>
               <button class="danger-btn" id="adminLogoutBtn">Выйти</button>
             </div>

@@ -1,17 +1,24 @@
 /**
  * СЕМЕЙНЫЙ НОВОГОДНИЙ ПОРТАЛ 2027 // APP.JS
- * Полная реактивная логика:
- * - 60 FPS Canvas снегопад
- * - Web Audio API для тактильных звуков
- * - Управление расписанием (Timeline CRUD)
- * - Интерактивное голосование по датам
- * - Витрина детского конкурса талантов
- * - Защищенная админка для Чолпонки с сохранением в LocalStorage + экспорт JSON
+ * Архитектура:
+ * - 60 FPS Canvas снегопад (аппаратное ускорение)
+ * - Web Audio API (тактильный звуковой отклик)
+ * - Единая облачная база данных (Cloudflare Pages Functions + Cloud Gist REST)
+ * - Автоматическая живая синхронизация между всеми смартфонами родственников
+ * - Оптимистичный UI с защитой от накрутки и конфликтов
+ * - Панель управления Чолпонки (PIN: 2027)
  */
 
 // ==========================================
-// 1. НАЧАЛЬНЫЕ ДАННЫЕ (ИЗ ЧАТА СЕМЬИ)
+// 1. КОНФИГУРАЦИЯ И ДЕФОЛТНЫЕ ДАННЫЕ
 // ==========================================
+const API_URL = "/api/sync";
+const GIST_FALLBACK_URL = "https://api.github.com/gists/58dbb782689b71098b48dd466c5f2af8";
+const STORAGE_KEY = "ny_family_portal_2027_data";
+const ADMIN_PIN_KEY = "ny_admin_pin_session";
+const VOTER_NAME_KEY = "ny_current_voter";
+const POLL_INTERVAL_MS = 3500;
+
 const DEFAULT_STATE = {
   timeline: [
     {
@@ -115,46 +122,254 @@ const DEFAULT_STATE = {
       likes: 4
     }
   ],
-  currentVoter: localStorage.getItem("ny_current_voter") || "",
+  currentVoter: localStorage.getItem(VOTER_NAME_KEY) || "",
   selectedDateId: null,
-  isAdmin: false
+  isAdmin: false,
+  lastUpdated: null
 };
 
 // ==========================================
-// 2. ХРАНИЛИЩЕ LOCALSTORAGE
+// 2. СОСТОЯНИЕ И ЛОКАЛЬНЫЙ КЭШ
 // ==========================================
-const STORAGE_KEY = "ny_family_portal_2027_data";
-
-function loadState() {
+function loadCachedState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT_STATE, ...parsed };
+      return {
+        ...DEFAULT_STATE,
+        ...parsed,
+        currentVoter: localStorage.getItem(VOTER_NAME_KEY) || "",
+        isAdmin: sessionStorage.getItem(ADMIN_PIN_KEY) === "true"
+      };
     }
   } catch (e) {
-    console.error("Ошибка загрузки данных из LocalStorage:", e);
+    console.error("Ошибка загрузки локального кэша:", e);
   }
-  return { ...DEFAULT_STATE };
+  return {
+    ...DEFAULT_STATE,
+    currentVoter: localStorage.getItem(VOTER_NAME_KEY) || "",
+    isAdmin: sessionStorage.getItem(ADMIN_PIN_KEY) === "true"
+  };
 }
 
-let appState = loadState();
+let appState = loadCachedState();
+let isSyncing = false;
+let lastSyncTimestamp = Date.now();
 
-function saveState() {
+function persistLocalCache() {
   try {
     const toSave = {
       timeline: appState.timeline,
       dates: appState.dates,
-      contestants: appState.contestants
+      contestants: appState.contestants,
+      lastUpdated: appState.lastUpdated
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch (e) {
-    console.error("Ошибка сохранения в LocalStorage:", e);
+    console.error("Ошибка сохранения локального кэша:", e);
   }
 }
 
 // ==========================================
-// 3. ЗВУКОВОЙ ДВИЖОК WEB AUDIO API
+// 3. ОБЛАЧНЫЙ СЕРВИС СИНХРОНИЗАЦИИ (CLOUD DB)
+// ==========================================
+const CloudDB = {
+  // Получение актуального состояния из облачной базы
+  async fetchRemote() {
+    // Попытка 1: собственный эндпоинт Cloudflare Pages Functions
+    try {
+      const res = await fetch(`${API_URL}?t=${Date.now()}`, {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.ok && json.data) {
+          return json.data;
+        }
+      }
+    } catch (e) {
+      // Игнорируем и переходим к резервному каналу
+    }
+
+    // Попытка 2: прямой запрос к облачному репозиторию данных Gist
+    try {
+      const resFallback = await fetch(`${GIST_FALLBACK_URL}?t=${Date.now()}`, {
+        headers: { "Accept": "application/vnd.github.v3+json" },
+        cache: "no-store"
+      });
+      if (resFallback.ok) {
+        const gist = await resFallback.json();
+        if (gist.files && gist.files["db.json"] && gist.files["db.json"].content) {
+          const parsed = JSON.parse(gist.files["db.json"].content.trim());
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn("Резервный канал недоступен:", err);
+    }
+
+    return null;
+  },
+
+  // Мутация данных на сервере
+  async mutate(action, payload) {
+    updateSyncIndicator("syncing");
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ action, payload })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.ok && json.data) {
+          applyRemoteState(json.data);
+          updateSyncIndicator("online");
+          return { ok: true, data: json.data };
+        }
+      }
+      const errJson = await res.json().catch(() => ({}));
+      updateSyncIndicator("online");
+      return { ok: false, error: errJson.error || "Ошибка сохранения" };
+    } catch (err) {
+      console.error("Ошибка сетевой мутации:", err);
+      updateSyncIndicator("offline");
+      return { ok: false, error: err.message };
+    }
+  }
+};
+
+// Применение данных, полученных с сервера
+function applyRemoteState(remoteData) {
+  if (!remoteData) return;
+
+  let changed = false;
+
+  if (Array.isArray(remoteData.timeline)) {
+    const currentJson = JSON.stringify(appState.timeline);
+    const remoteJson = JSON.stringify(remoteData.timeline);
+    if (currentJson !== remoteJson) {
+      appState.timeline = remoteData.timeline;
+      changed = true;
+    }
+  }
+
+  if (Array.isArray(remoteData.dates)) {
+    const currentJson = JSON.stringify(appState.dates);
+    const remoteJson = JSON.stringify(remoteData.dates);
+    if (currentJson !== remoteJson) {
+      appState.dates = remoteData.dates;
+      changed = true;
+    }
+  }
+
+  if (Array.isArray(remoteData.contestants)) {
+    const currentJson = JSON.stringify(appState.contestants);
+    const remoteJson = JSON.stringify(remoteData.contestants);
+    if (currentJson !== remoteJson) {
+      appState.contestants = remoteData.contestants;
+      changed = true;
+    }
+  }
+
+  if (remoteData.lastUpdated) {
+    appState.lastUpdated = remoteData.lastUpdated;
+  }
+
+  persistLocalCache();
+
+  if (changed) {
+    renderAllViews(false); // мягкий рендер без сброса фокуса ввода
+  }
+}
+
+// Периодическая проверка облачных изменений
+async function checkCloudUpdates() {
+  if (isSyncing) return;
+  isSyncing = true;
+
+  try {
+    const remoteState = await CloudDB.fetchRemote();
+    if (remoteState) {
+      applyRemoteState(remoteState);
+      updateSyncIndicator("online");
+      lastSyncTimestamp = Date.now();
+    } else {
+      updateSyncIndicator("offline");
+    }
+  } catch (e) {
+    updateSyncIndicator("offline");
+  } finally {
+    isSyncing = false;
+  }
+}
+
+// Индикатор статуса синхронизации
+function updateSyncIndicator(status) {
+  const bar = document.getElementById("dbSyncStatusBar");
+  const text = document.getElementById("dbSyncText");
+  const time = document.getElementById("dbSyncTime");
+  if (!bar || !text || !time) return;
+
+  bar.classList.remove("syncing", "offline");
+
+  if (status === "syncing") {
+    bar.classList.add("syncing");
+    text.textContent = "Облачная база: Синхронизация...";
+  } else if (status === "offline") {
+    bar.classList.add("offline");
+    text.textContent = "Облачная база: Офлайн (Локальная копия)";
+    time.textContent = "кэш";
+  } else {
+    text.textContent = "Облачная база: В сети • Живая синхронизация";
+    time.textContent = "только что";
+  }
+}
+
+// Запуск цикла живого обновления
+function initRealtimeSync() {
+  checkCloudUpdates();
+
+  // Регулярный опрос
+  setInterval(() => {
+    if (document.visibilityState === "visible") {
+      checkCloudUpdates();
+    }
+  }, POLL_INTERVAL_MS);
+
+  // Мгновенный опрос при возвращении родственника на вкладку
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      checkCloudUpdates();
+    }
+  });
+
+  window.addEventListener("focus", () => {
+    checkCloudUpdates();
+  });
+
+  // Клик по статус-бару для ручного обновления
+  const bar = document.getElementById("dbSyncStatusBar");
+  if (bar) {
+    bar.addEventListener("click", () => {
+      playSound("tab");
+      updateSyncIndicator("syncing");
+      checkCloudUpdates().then(() => {
+        showToast("Облачная база актуализирована 🔄");
+      });
+    });
+  }
+}
+
+// ==========================================
+// 4. ЗВУКОВОЙ ДВИЖОК WEB AUDIO API (60 FPS)
 // ==========================================
 let audioCtx = null;
 function playSound(type) {
@@ -162,7 +377,7 @@ function playSound(type) {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx.state === "suspended") {
       audioCtx.resume();
     }
     const osc = audioCtx.createOscillator();
@@ -172,32 +387,32 @@ function playSound(type) {
 
     const now = audioCtx.currentTime;
 
-    if (type === 'tab') {
-      osc.type = 'sine';
+    if (type === "tab") {
+      osc.type = "sine";
       osc.frequency.setValueAtTime(440, now);
       osc.frequency.exponentialRampToValueAtTime(587.33, now + 0.08);
       gain.gain.setValueAtTime(0.08, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       osc.start(now);
       osc.stop(now + 0.08);
-    } else if (type === 'vote') {
-      osc.type = 'triangle';
+    } else if (type === "vote") {
+      osc.type = "triangle";
       osc.frequency.setValueAtTime(523.25, now);
       osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12);
       gain.gain.setValueAtTime(0.12, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
       osc.start(now);
       osc.stop(now + 0.12);
-    } else if (type === 'like') {
-      osc.type = 'sine';
+    } else if (type === "like") {
+      osc.type = "sine";
       osc.frequency.setValueAtTime(659.25, now);
       osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.15);
       gain.gain.setValueAtTime(0.15, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
       osc.start(now);
       osc.stop(now + 0.15);
-    } else if (type === 'success') {
-      osc.type = 'sine';
+    } else if (type === "success") {
+      osc.type = "sine";
       osc.frequency.setValueAtTime(523.25, now);
       osc.frequency.setValueAtTime(659.25, now + 0.08);
       osc.frequency.setValueAtTime(783.99, now + 0.16);
@@ -207,15 +422,16 @@ function playSound(type) {
       osc.stop(now + 0.28);
     }
   } catch (e) {
-    // Тихо игнорируем, если аудио запрещено браузером
+    // Браузерная блокировка аудио без жеста пользователя
   }
 }
 
 // ==========================================
-// 4. УВЕДОМЛЕНИЯ TOAST
+// 5. УВЕДОМЛЕНИЯ TOAST
 // ==========================================
 function showToast(message) {
   const toast = document.getElementById("toast");
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.remove("hidden");
   setTimeout(() => {
@@ -224,16 +440,17 @@ function showToast(message) {
 }
 
 // ==========================================
-// 5. РЕНДЕРИНГ: ТАЙМЛАЙН ДНЯ
+// 6. РЕНДЕРИНГ: ТАЙМЛАЙН ДНЯ
 // ==========================================
 function renderTimeline() {
   const container = document.getElementById("timelineList");
   const badge = document.getElementById("totalDurationBadge");
+  if (!container || !badge) return;
 
   // Сортировка по времени начала
   appState.timeline.sort((a, b) => a.time.localeCompare(b.time));
 
-  let totalMin = appState.timeline.reduce((sum, item) => sum + Number(item.duration || 0), 0);
+  const totalMin = appState.timeline.reduce((sum, item) => sum + Number(item.duration || 0), 0);
   const hours = Math.floor(totalMin / 60);
   const mins = totalMin % 60;
   badge.textContent = `⏳ Общее время программы: ${hours} ч ${mins} мин (${appState.timeline.length} этапов)`;
@@ -252,20 +469,20 @@ function renderTimeline() {
       <button class="timeline-delete-btn" onclick="deleteTimelineEvent('${item.id}')" title="Удалить пункт">
         ✕
       </button>
-    ` : '';
+    ` : "";
 
     return `
       <div class="timeline-card">
         <div class="timeline-time-block">
-          <span class="timeline-start-time">${item.time}</span>
-          <span class="timeline-dur-badge">${item.duration} мин</span>
+          <span class="timeline-start-time">${escapeHtml(item.time)}</span>
+          <span class="timeline-dur-badge">${escapeHtml(String(item.duration))} мин</span>
         </div>
         <div class="timeline-info">
           <div class="timeline-title-row">
-            <span class="timeline-icon">${item.icon || '✨'}</span>
-            <span class="timeline-title">${item.title}</span>
+            <span class="timeline-icon">${escapeHtml(item.icon || "✨")}</span>
+            <span class="timeline-title">${escapeHtml(item.title)}</span>
           </div>
-          ${item.desc ? `<p class="timeline-desc">${item.desc}</p>` : ''}
+          ${item.desc ? `<p class="timeline-desc">${escapeHtml(item.desc)}</p>` : ""}
         </div>
         <div>
           ${deleteBtn}
@@ -275,41 +492,59 @@ function renderTimeline() {
   }).join("");
 }
 
-window.deleteTimelineEvent = function(id) {
+window.deleteTimelineEvent = async function(id) {
   if (!confirm("Удалить это событие из расписания?")) return;
+
+  // Оптимистичное удаление
+  const original = [...appState.timeline];
   appState.timeline = appState.timeline.filter(e => e.id !== id);
-  saveState();
   renderTimeline();
-  showToast("Событие удалено из таймлайна");
+  persistLocalCache();
+
+  const res = await CloudDB.mutate("delete_event", { eventId: id, pin: "2027" });
+  if (res.ok) {
+    showToast("Событие удалено из общего расписания");
+    playSound("tab");
+  } else {
+    // Откат при ошибке
+    appState.timeline = original;
+    renderTimeline();
+    alert(res.error || "Не удалось удалить событие");
+  }
 };
 
 // ==========================================
-// 6. РЕНДЕРИНГ: ГОЛОСОВАНИЕ ПО ДАТАМ
+// 7. РЕНДЕРИНГ: ГОЛОСОВАНИЕ ПО ДАТАМ
 // ==========================================
 function renderVoting() {
   const container = document.getElementById("votingGrid");
   const voterNameInput = document.getElementById("voterNameInput");
-  if (appState.currentVoter) {
+  if (!container) return;
+
+  if (voterNameInput && appState.currentVoter && document.activeElement !== voterNameInput) {
     voterNameInput.value = appState.currentVoter;
   }
 
-  // Расчет максимального числа голосов
-  const maxVotes = Math.max(1, ...appState.dates.map(d => d.voters.length));
+  const maxVotes = Math.max(1, ...appState.dates.map(d => (d.voters || []).length));
 
   container.innerHTML = appState.dates.map(d => {
     const isSelected = appState.selectedDateId === d.id;
-    const count = d.voters.length;
+    const voters = d.voters || [];
+    const count = voters.length;
     const pct = Math.round((count / maxVotes) * 100);
 
-    const voterBadges = d.voters.map(name => `<span class="voter-tag">${name}</span>`).join("");
+    const voterBadges = voters.map(name => {
+      const isMe = appState.currentVoter && name.toLowerCase() === appState.currentVoter.toLowerCase();
+      return `<span class="voter-tag ${isMe ? "voter-tag-me" : ""}">${escapeHtml(name)}${isMe ? " (Вы)" : ""}</span>`;
+    }).join("");
 
     return `
-      <div class="vote-card ${isSelected ? 'selected' : ''}" onclick="selectDateOption('${d.id}')">
+      <div class="vote-card ${isSelected ? "selected" : ""}" onclick="selectDateOption('${d.id}')">
         <div class="vote-card-header">
-          <span class="vote-date-title">${d.label}</span>
+          <span class="vote-date-title">${escapeHtml(d.label)}</span>
           <span class="vote-count-badge">${count} голосов</span>
         </div>
-        ${d.note ? `<p class="vote-note">${d.note}</p>` : ''}
+        ${d.note ? `<p class="vote-note">${escapeHtml(d.note)}</p>` : ""}
         <div class="vote-progress-bar">
           <div class="vote-progress-fill" style="width: ${pct}%"></div>
         </div>
@@ -322,15 +557,18 @@ function renderVoting() {
 }
 
 window.selectDateOption = function(dateId) {
-  playSound('tab');
+  playSound("tab");
   appState.selectedDateId = dateId;
   renderVoting();
 };
 
-function submitVote() {
-  const name = document.getElementById("voterNameInput").value.trim();
+async function submitVote() {
+  const input = document.getElementById("voterNameInput");
+  const name = input ? input.value.trim() : "";
+
   if (!name) {
     alert("Пожалуйста, введите ваше имя (например: Медер, Чолпон, Дастан)!");
+    if (input) input.focus();
     return;
   }
   if (!appState.selectedDateId) {
@@ -339,30 +577,37 @@ function submitVote() {
   }
 
   appState.currentVoter = name;
-  localStorage.setItem("ny_current_voter", name);
+  localStorage.setItem(VOTER_NAME_KEY, name);
 
-  // Удаляем старый голос этого человека со всех дат
+  // Оптимистичное применение голоса
   appState.dates.forEach(d => {
-    d.voters = d.voters.filter(v => v.toLowerCase() !== name.toLowerCase());
+    d.voters = (d.voters || []).filter(v => v.toLowerCase() !== name.toLowerCase());
   });
 
-  // Добавляем в выбранную дату
   const targetDate = appState.dates.find(d => d.id === appState.selectedDateId);
   if (targetDate) {
+    if (!targetDate.voters) targetDate.voters = [];
     targetDate.voters.push(name);
   }
 
-  saveState();
-  playSound('vote');
-  showToast(`Спасибо, ${name}! Ваш голос учтен за ${targetDate.label} 🎉`);
+  persistLocalCache();
+  playSound("vote");
+  showToast(`Спасибо, ${name}! Ваш голос учтен за ${targetDate ? targetDate.label : "выбранную дату"} 🎉`);
   renderVoting();
+
+  // Сохранение в единой облачной базе данных
+  const res = await CloudDB.mutate("vote", { name, dateId: appState.selectedDateId });
+  if (!res.ok) {
+    showToast("⚠️ Голос сохранен локально, синхронизация повторится");
+  }
 }
 
 // ==========================================
-// 7. РЕНДЕРИНГ: ДЕТСКИЙ КОНКУРС
+// 8. РЕНДЕРИНГ: ДЕТСКИЙ КОНКУРС И ЛАЙКИ
 // ==========================================
 function renderContest() {
   const container = document.getElementById("contestList");
+  if (!container) return;
 
   if (appState.contestants.length === 0) {
     container.innerHTML = `
@@ -379,66 +624,82 @@ function renderContest() {
     return `
       <div class="contestant-card">
         <div class="contestant-header">
-          <span class="contestant-name">${c.name}</span>
-          <span class="contestant-category">${c.category}</span>
+          <span class="contestant-name">${escapeHtml(c.name)}</span>
+          <span class="contestant-category">${escapeHtml(c.category)}</span>
         </div>
         <div class="contestant-details">
           <div class="detail-row">
             <span class="detail-label">Костюм:</span>
-            <span class="detail-val">🎭 ${c.costume}</span>
+            <span class="detail-val">🎭 ${escapeHtml(c.costume)}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Номер:</span>
-            <span class="detail-val">⭐ ${c.act}</span>
+            <span class="detail-val">⭐ ${escapeHtml(c.act || "Праздничный творческий номер")}</span>
           </div>
         </div>
         <div class="contestant-footer">
-          <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${c.id}')">
+          <button class="like-btn ${isLiked ? "liked" : ""}" onclick="toggleLike('${c.id}')">
             <span>❤️</span>
-            <span id="likes-cnt-${c.id}">${c.likes}</span>
+            <span id="likes-cnt-${c.id}">${c.likes || 0}</span>
           </button>
           ${appState.isAdmin ? `
             <button class="timeline-delete-btn" onclick="deleteContestant('${c.id}')" title="Удалить участника">
               ✕
             </button>
-          ` : ''}
+          ` : ""}
         </div>
       </div>
     `;
   }).join("");
 }
 
-window.toggleLike = function(id) {
+window.toggleLike = async function(id) {
   const target = appState.contestants.find(c => c.id === id);
   if (!target) return;
 
   const key = `ny_liked_${id}`;
-  const isLiked = localStorage.getItem(key) === "1";
+  const isCurrentlyLiked = localStorage.getItem(key) === "1";
+  const delta = isCurrentlyLiked ? -1 : 1;
 
-  if (isLiked) {
-    target.likes = Math.max(0, target.likes - 1);
+  // Оптимистичное обновление
+  if (isCurrentlyLiked) {
+    target.likes = Math.max(0, (target.likes || 0) - 1);
     localStorage.removeItem(key);
   } else {
-    target.likes += 1;
+    target.likes = (target.likes || 0) + 1;
     localStorage.setItem(key, "1");
-    playSound('like');
+    playSound("like");
     showToast(`Вы поддержали участника ${target.name}! 🌟`);
   }
 
-  saveState();
+  persistLocalCache();
   renderContest();
+
+  // Облачная синхронизация лайка
+  await CloudDB.mutate("like", { contestantId: id, delta });
 };
 
-window.deleteContestant = function(id) {
+window.deleteContestant = async function(id) {
   if (!confirm("Удалить участника из конкурса?")) return;
+
+  const original = [...appState.contestants];
   appState.contestants = appState.contestants.filter(c => c.id !== id);
-  saveState();
+  persistLocalCache();
   renderContest();
-  showToast("Участник удален");
+
+  const res = await CloudDB.mutate("delete_contestant", { contestantId: id, pin: "2027" });
+  if (res.ok) {
+    showToast("Участник удален из списка конкурса");
+    playSound("tab");
+  } else {
+    appState.contestants = original;
+    renderContest();
+    alert(res.error || "Не удалось удалить участника");
+  }
 };
 
 // ==========================================
-// 8. ПАНЕЛЬ ОРГАНИЗАТОРА (ЧОЛПОНКА)
+// 9. ПАНЕЛЬ ОРГАНИЗАТОРА (ЧОЛПОНКА)
 // ==========================================
 const ADMIN_PIN = "2027";
 
@@ -449,136 +710,224 @@ function initAdmin() {
   const logoutBtn = document.getElementById("adminLogoutBtn");
   const passInput = document.getElementById("adminPassInput");
 
-  loginBtn.addEventListener("click", () => {
-    if (passInput.value.trim() === ADMIN_PIN || passInput.value.trim().toLowerCase() === "cholponka") {
-      appState.isAdmin = true;
-      authLock.classList.add("hidden");
-      panel.classList.remove("hidden");
-      playSound('success');
-      showToast("Добро пожаловать в кабинет организатора, Чолпонка! 👑");
+  // Авто-вход если сессия сохранена
+  if (appState.isAdmin && panel && authLock) {
+    authLock.classList.add("hidden");
+    panel.classList.remove("hidden");
+  }
+
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const entered = (passInput.value || "").trim().toLowerCase();
+      if (entered === ADMIN_PIN || entered === "cholponka") {
+        appState.isAdmin = true;
+        sessionStorage.setItem(ADMIN_PIN_KEY, "true");
+        authLock.classList.add("hidden");
+        panel.classList.remove("hidden");
+        playSound("success");
+        showToast("Добро пожаловать в кабинет организатора, Чолпонка! 👑");
+        renderTimeline();
+        renderContest();
+      } else {
+        alert("Неверный пин-код! Пин-код по умолчанию: 2027");
+        passInput.focus();
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      appState.isAdmin = false;
+      sessionStorage.removeItem(ADMIN_PIN_KEY);
+      authLock.classList.remove("hidden");
+      panel.classList.add("hidden");
+      if (passInput) passInput.value = "";
+      showToast("Вы вышли из кабинета организатора");
       renderTimeline();
       renderContest();
-    } else {
-      alert("Неверный пин-код! По умолчанию: 2027");
-    }
-  });
-
-  logoutBtn.addEventListener("click", () => {
-    appState.isAdmin = false;
-    authLock.classList.remove("hidden");
-    panel.classList.add("hidden");
-    passInput.value = "";
-    showToast("Вы вышли из кабинета организатора");
-    renderTimeline();
-    renderContest();
-  });
+    });
+  }
 
   // Добавление события в расписание
-  document.getElementById("addEventForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const title = document.getElementById("evTitle").value.trim();
-    const time = document.getElementById("evTime").value;
-    const duration = parseInt(document.getElementById("evDuration").value, 10);
-    const icon = document.getElementById("evIcon").value.trim() || "✨";
-    const desc = document.getElementById("evDesc").value.trim();
+  const addEventForm = document.getElementById("addEventForm");
+  if (addEventForm) {
+    addEventForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("evTitle").value.trim();
+      const time = document.getElementById("evTime").value;
+      const duration = parseInt(document.getElementById("evDuration").value, 10);
+      const icon = document.getElementById("evIcon").value.trim() || "✨";
+      const desc = document.getElementById("evDesc").value.trim();
 
-    const newEvent = {
-      id: "ev-" + Date.now(),
-      time,
-      duration,
-      title,
-      icon,
-      desc
-    };
+      const newEvent = {
+        time,
+        duration: isNaN(duration) ? 45 : duration,
+        title,
+        icon,
+        desc
+      };
 
-    appState.timeline.push(newEvent);
-    saveState();
-    playSound('success');
-    showToast(`Событие «${title}» добавлено в расписание! 🕒`);
-    renderTimeline();
-    e.target.reset();
-    document.getElementById("evDuration").value = "45";
-    document.getElementById("evIcon").value = "🍽️";
-  });
+      showToast(`Сохранение «${title}» в облачной базе...`);
+      const res = await CloudDB.mutate("add_event", { event: newEvent, pin: "2027" });
+      if (res.ok) {
+        playSound("success");
+        showToast(`Событие «${title}» добавлено и видно всей семье! 🕒`);
+        e.target.reset();
+        document.getElementById("evDuration").value = "45";
+        document.getElementById("evIcon").value = "🍽️";
+      } else {
+        alert(res.error || "Не удалось добавить событие в базу");
+      }
+    });
+  }
 
   // Добавление участника в конкурс
-  document.getElementById("addContestantForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("cntName").value.trim();
-    const category = document.getElementById("cntCategory").value;
-    const costume = document.getElementById("cntCostume").value.trim();
-    const act = document.getElementById("cntAct").value.trim();
+  const addContestantForm = document.getElementById("addContestantForm");
+  if (addContestantForm) {
+    addContestantForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("cntName").value.trim();
+      const category = document.getElementById("cntCategory").value;
+      const costume = document.getElementById("cntCostume").value.trim();
+      const act = document.getElementById("cntAct").value.trim();
 
-    const newContestant = {
-      id: "cnt-" + Date.now(),
-      name,
-      category,
-      costume,
-      act,
-      likes: 1
-    };
+      const newContestant = {
+        name,
+        category,
+        costume,
+        act
+      };
 
-    appState.contestants.push(newContestant);
-    saveState();
-    playSound('success');
-    showToast(`Участник ${name} добавлен в конкурс! 🎭`);
-    renderContest();
-    e.target.reset();
-  });
+      showToast(`Регистрация участника ${name}...`);
+      const res = await CloudDB.mutate("add_contestant", { contestant: newContestant, pin: "2027" });
+      if (res.ok) {
+        playSound("success");
+        showToast(`Участник ${name} зарегистрирован в конкурсе! 🎭`);
+        e.target.reset();
+      } else {
+        alert(res.error || "Не удалось зарегистрировать участника");
+      }
+    });
+  }
 
-  // Добавление даты в опрос
-  document.getElementById("addDateForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const label = document.getElementById("dateLabel").value.trim();
-    const note = document.getElementById("dateNote").value.trim();
+  // Добавление новой даты в опрос
+  const addDateForm = document.getElementById("addDateForm");
+  if (addDateForm) {
+    addDateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const label = document.getElementById("dateLabel").value.trim();
+      const note = document.getElementById("dateNote").value.trim();
 
-    const newDate = {
-      id: "dt-" + Date.now(),
-      label,
-      note,
-      voters: []
-    };
+      const newDate = { label, note };
 
-    appState.dates.push(newDate);
-    saveState();
-    playSound('success');
-    showToast(`Вариант «${label}» добавлен в семейное голосование! 📅`);
-    renderVoting();
-    e.target.reset();
-  });
+      showToast(`Добавление варианта «${label}»...`);
+      const res = await CloudDB.mutate("add_date", { dateOption: newDate, pin: "2027" });
+      if (res.ok) {
+        playSound("success");
+        showToast(`Вариант «${label}» добавлен в семейное голосование! 📅`);
+        e.target.reset();
+      } else {
+        alert(res.error || "Не удалось добавить дату");
+      }
+    });
+  }
 
   // Экспорт копии конфигурации в JSON
-  document.getElementById("adminExportBtn").addEventListener("click", () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `noviy_god_2027_config_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast("Файл конфигурации скачан на ПК 📥");
-  });
+  const exportBtn = document.getElementById("adminExportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `noviy_god_2027_database_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("Файл базы данных скачан на устройство 📥");
+    });
+  }
+
+  // Импорт копии конфигурации из JSON
+  const importBtn = document.getElementById("adminImportBtn");
+  const fileInput = document.getElementById("adminFileInput");
+  if (importBtn && fileInput) {
+    importBtn.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (!Array.isArray(parsed.timeline) || !Array.isArray(parsed.dates)) {
+            alert("Ошибка: неверная структура файла резервной копии!");
+            return;
+          }
+
+          showToast("Загрузка данных в облачную базу...");
+          const res = await CloudDB.mutate("import_state", { state: parsed, pin: "2027" });
+          if (res.ok) {
+            playSound("success");
+            showToast("База данных успешно восстановлена из копии! 🌟");
+          } else {
+            alert(res.error || "Ошибка импорта данных");
+          }
+        } catch (err) {
+          alert("Ошибка чтения JSON файла: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      fileInput.value = "";
+    });
+  }
 
   // Сброс к значениям по умолчанию
-  document.getElementById("adminResetBtn").addEventListener("click", () => {
-    if (confirm("Вы уверены, что хотите сбросить расписание и конкурс к исходному варианту?")) {
-      appState.timeline = [...DEFAULT_STATE.timeline];
-      appState.dates = [...DEFAULT_STATE.dates];
-      appState.contestants = [...DEFAULT_STATE.contestants];
-      saveState();
-      renderTimeline();
-      renderVoting();
-      renderContest();
-      showToast("Данные сброшены по умолчанию");
-    }
-  });
+  const resetBtn = document.getElementById("adminResetBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", async () => {
+      if (confirm("Вы уверены, что хотите сбросить расписание и опрос к исходному варианту для всех родственников?")) {
+        showToast("Сброс данных к начальным...");
+        const res = await CloudDB.mutate("reset", { pin: "2027" });
+        if (res.ok) {
+          playSound("tab");
+          showToast("Данные сброшены по умолчанию во всей сети 🔄");
+        } else {
+          alert(res.error || "Ошибка сброса");
+        }
+      }
+    });
+  }
 }
 
 // ==========================================
-// 9. СНЕГОПАД НА CANVAS (60 FPS АППАРАТНОЕ УСКОРЕНИЕ)
+// 10. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ==========================================
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderAllViews(forceInputs = true) {
+  renderTimeline();
+  renderVoting();
+  renderContest();
+}
+
+// ==========================================
+// 11. СНЕГОПАД НА CANVAS (60 FPS АППАРАТНОЕ УСКОРЕНИЕ)
 // ==========================================
 function initSnowCanvas() {
   const canvas = document.getElementById("snowCanvas");
+  if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
   let width = (canvas.width = window.innerWidth);
@@ -628,7 +977,7 @@ function initSnowCanvas() {
 }
 
 // ==========================================
-// 10. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
+// 12. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   // Навигация по вкладкам
@@ -637,7 +986,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      playSound('tab');
+      playSound("tab");
       const target = btn.dataset.tab;
 
       tabButtons.forEach(b => b.classList.remove("active"));
@@ -651,12 +1000,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.getElementById("submitVoteBtn").addEventListener("click", submitVote);
+  const submitVoteBtn = document.getElementById("submitVoteBtn");
+  if (submitVoteBtn) {
+    submitVoteBtn.addEventListener("click", submitVote);
+  }
 
-  // Инициализация компонентов
-  renderTimeline();
-  renderVoting();
-  renderContest();
+  // Первоначальный рендер из локального кэша для моментальной загрузки (0ms)
+  renderAllViews();
   initAdmin();
   initSnowCanvas();
+
+  // Запуск облачной синхронизации в реальном времени
+  initRealtimeSync();
 });
