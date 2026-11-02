@@ -200,8 +200,10 @@ body {
   font-family: var(--font-heading);
   font-size: clamp(1.2rem, 3vw, 1.55rem);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #382F27;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #382F27 0%, #6E5326 50%, #382F27 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Элегантный заголовок НОВЫЙ ГОД 2027 в журнальном стиле */
@@ -265,20 +267,20 @@ body {
   height: 9px;
   border-radius: 50%;
   background-color: var(--accent-sage);
-  box-shadow: 0 0 6px rgba(62, 122, 83, 0.4);
+  box-shadow: 0 0 0 3px rgba(62, 122, 83, 0.16);
   display: inline-block;
   transition: all 0.3s ease;
 }
 
 .db-sync-bar.syncing .db-sync-pulse {
   background-color: var(--accent-gold);
-  box-shadow: 0 0 8px rgba(184, 142, 58, 0.45);
+  box-shadow: 0 0 0 3px rgba(184, 142, 58, 0.22);
   animation: pulseSpin 1s infinite alternate;
 }
 
 .db-sync-bar.offline .db-sync-pulse {
   background-color: var(--accent-rose);
-  box-shadow: 0 0 6px rgba(158, 62, 51, 0.4);
+  box-shadow: 0 0 0 3px rgba(158, 62, 51, 0.18);
 }
 
 .db-sync-time {
@@ -439,6 +441,10 @@ body {
   padding: 18px 22px;
   box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
+}
+
+.timeline-card:not(.has-actions) {
+  grid-template-columns: 88px 1fr;
 }
 
 .timeline-card:hover {
@@ -618,6 +624,12 @@ body {
   padding: 3px 10px;
   border-radius: var(--radius-full);
   color: #5C4E43;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .voter-tag-me {
@@ -759,6 +771,18 @@ body {
   background: var(--bg-secondary);
   color: #6B5B4F;
   border: 1px solid var(--accent-latte);
+}
+
+.contestant-category.cat-young {
+  background: #FAF6EE;
+  color: #8C6D2D;
+  border-color: #E6D8C4;
+}
+
+.contestant-category.cat-older {
+  background: #F4EFEA;
+  color: #5C4E43;
+  border-color: #D8CEBF;
 }
 
 .contestant-details {
@@ -960,7 +984,7 @@ body {
   padding: 10px 14px;
   color: var(--text-main);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 16px; /* 16px prevents iOS Safari automatic viewport zooming on tap */
   transition: all 0.2s ease;
   width: 100%;
 }
@@ -1099,6 +1123,10 @@ body {
     padding: 14px 16px;
   }
   
+  .timeline-card:not(.has-actions) {
+    grid-template-columns: 74px 1fr;
+  }
+  
   .timeline-start-time {
     font-size: 1.15rem;
   }
@@ -1110,6 +1138,7 @@ body {
   
   .nav-tabs {
     border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
   }
   
   .tab-btn {

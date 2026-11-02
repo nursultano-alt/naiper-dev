@@ -519,13 +519,15 @@ function renderTimeline() {
 
   container.innerHTML = appState.timeline.map((item) => {
     const deleteBtn = appState.isAdmin ? `
-      <button class="timeline-delete-btn" onclick="deleteTimelineEvent('${item.id}')" title="Удалить пункт">
-        ✕
-      </button>
+      <div>
+        <button class="timeline-delete-btn" onclick="deleteTimelineEvent('${item.id}')" title="Удалить пункт">
+          ✕
+        </button>
+      </div>
     ` : "";
 
     return `
-      <div class="timeline-card">
+      <div class="timeline-card ${appState.isAdmin ? "has-actions" : ""}">
         <div class="timeline-time-block">
           <span class="timeline-start-time">${escapeHtml(item.time)}</span>
           <span class="timeline-dur-badge">${escapeHtml(String(item.duration))} мин</span>
@@ -537,9 +539,7 @@ function renderTimeline() {
           </div>
           ${item.desc ? `<p class="timeline-desc">${escapeHtml(item.desc)}</p>` : ""}
         </div>
-        <div>
-          ${deleteBtn}
-        </div>
+        ${deleteBtn}
       </div>
     `;
   }).join("");
@@ -673,12 +673,13 @@ function renderContest() {
 
   container.innerHTML = appState.contestants.map(c => {
     const isLiked = localStorage.getItem(`ny_liked_${c.id}`) === "1";
+    const catClass = c.category && c.category.includes("до 10") ? "cat-young" : "cat-older";
 
     return `
       <div class="contestant-card">
         <div class="contestant-header">
           <span class="contestant-name">${escapeHtml(c.name)}</span>
-          <span class="contestant-category">${escapeHtml(c.category)}</span>
+          <span class="contestant-category ${catClass}">${escapeHtml(c.category)}</span>
         </div>
         <div class="contestant-details">
           <div class="detail-row">
@@ -770,7 +771,7 @@ function initAdmin() {
   }
 
   if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
+    const handleLogin = () => {
       const entered = (passInput.value || "").trim().toLowerCase();
       if (entered === ADMIN_PIN || entered === "cholponka") {
         appState.isAdmin = true;
@@ -785,7 +786,18 @@ function initAdmin() {
         alert("Неверный пин-код! Пин-код по умолчанию: 2027");
         passInput.focus();
       }
-    });
+    };
+
+    loginBtn.addEventListener("click", handleLogin);
+
+    if (passInput) {
+      passInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleLogin();
+        }
+      });
+    }
   }
 
   if (logoutBtn) {
@@ -983,15 +995,24 @@ function initSnowCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
-  let width = (canvas.width = window.innerWidth);
-  let height = (canvas.height = window.innerHeight);
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  window.addEventListener("resize", () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  });
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+  }
 
-  const flakeCount = Math.min(80, Math.floor(width / 16));
+  resize();
+  window.addEventListener("resize", resize);
+
+  const flakeCount = Math.min(85, Math.floor(width / 14));
   const flakes = [];
 
   for (let i = 0; i < flakeCount; i++) {
@@ -999,17 +1020,17 @@ function initSnowCanvas() {
       x: Math.random() * width,
       y: Math.random() * height,
       r: Math.random() * 2.2 + 0.8,
-      speedY: Math.random() * 0.9 + 0.4,
-      speedX: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.25 + 0.22
+      speedY: Math.random() * 0.85 + 0.35,
+      speedX: (Math.random() - 0.5) * 0.35,
+      opacity: Math.random() * 0.2 + 0.25 // Centered precisely at ~0.35
     });
   }
 
   function renderSnow() {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let f of flakes) {
       ctx.beginPath();
-      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.arc(f.x * dpr, f.y * dpr, f.r * dpr, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(200, 185, 170, ${f.opacity})`;
       ctx.fill();
 
@@ -1054,8 +1075,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const submitVoteBtn = document.getElementById("submitVoteBtn");
+  const voterNameInput = document.getElementById("voterNameInput");
   if (submitVoteBtn) {
     submitVoteBtn.addEventListener("click", submitVote);
+  }
+  if (voterNameInput) {
+    voterNameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitVote();
+      }
+    });
   }
 
   // Первоначальный рендер из локального кэша для моментальной загрузки (0ms)
