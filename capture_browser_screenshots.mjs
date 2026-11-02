@@ -41,26 +41,26 @@ server.listen(PORT, async () => {
   try {
     // 1. Desktop Gilded Ivory (1440x1080)
     console.log("📸 Capturing Desktop: Gilded Ivory (☀️ Слоновая кость 1440x1080)...");
-    const cmdIvory = `"${edgePath}" --headless=new --hide-scrollbars --window-size=1440,1080 --screenshot="${ivoryFile}" "http://localhost:${PORT}/?theme=ivory"`;
+    const cmdIvory = `"${edgePath}" --headless=new --hide-scrollbars --virtual-time-budget=2000 --window-size=1440,1080 --screenshot="${ivoryFile}" "http://localhost:${PORT}/?theme=ivory"`;
     await runCommand(cmdIvory);
     fs.copyFileSync(ivoryFile, desktopIvoryFile);
     console.log(`✅ Desktop Ivory screenshot saved: ${ivoryFile} (${fs.statSync(ivoryFile).size} bytes)`);
 
     // 2. Desktop Warm Obsidian (1440x1080)
     console.log("📸 Capturing Desktop: Warm Obsidian (🌙 Теплый обсидиан 1440x1080)...");
-    const cmdObsidian = `"${edgePath}" --headless=new --hide-scrollbars --window-size=1440,1080 --screenshot="${obsidianFile}" "http://localhost:${PORT}/?theme=obsidian"`;
+    const cmdObsidian = `"${edgePath}" --headless=new --hide-scrollbars --virtual-time-budget=2000 --window-size=1440,1080 --screenshot="${obsidianFile}" "http://localhost:${PORT}/?theme=obsidian"`;
     await runCommand(cmdObsidian);
     console.log(`✅ Desktop Obsidian screenshot saved: ${obsidianFile} (${fs.statSync(obsidianFile).size} bytes)`);
 
     // 3. Mobile Gilded Ivory (480x960 Mobile-First)
     console.log("📸 Capturing Mobile: Gilded Ivory (☀️ 480x960 Mobile-First)...");
-    const cmdMobileIvory = `"${edgePath}" --headless=new --hide-scrollbars --window-size=480,960 --screenshot="${mobileIvoryFile}" "http://localhost:${PORT}/?theme=ivory"`;
+    const cmdMobileIvory = `"${edgePath}" --headless=new --hide-scrollbars --virtual-time-budget=2000 --window-size=480,960 --screenshot="${mobileIvoryFile}" "http://localhost:${PORT}/?theme=ivory"`;
     await runCommand(cmdMobileIvory);
     console.log(`✅ Mobile Ivory screenshot saved: ${mobileIvoryFile} (${fs.statSync(mobileIvoryFile).size} bytes)`);
 
     // 4. Mobile Warm Obsidian (480x960 Mobile-First)
     console.log("📸 Capturing Mobile: Warm Obsidian (🌙 480x960 Mobile-First)...");
-    const cmdMobileObsidian = `"${edgePath}" --headless=new --hide-scrollbars --window-size=480,960 --screenshot="${mobileObsidianFile}" "http://localhost:${PORT}/?theme=obsidian"`;
+    const cmdMobileObsidian = `"${edgePath}" --headless=new --hide-scrollbars --virtual-time-budget=2000 --window-size=480,960 --screenshot="${mobileObsidianFile}" "http://localhost:${PORT}/?theme=obsidian"`;
     await runCommand(cmdMobileObsidian);
     console.log(`✅ Mobile Obsidian screenshot saved: ${mobileObsidianFile} (${fs.statSync(mobileObsidianFile).size} bytes)`);
 

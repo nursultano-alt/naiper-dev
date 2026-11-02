@@ -172,6 +172,53 @@
                       radial-gradient(circle at 50% 90%, rgba(30, 24, 20, 0.8) 0%, transparent 60%);
 }
 
+/* Высококонтрастная полировка для темы Warm Obsidian */
+[data-theme="obsidian"] .db-sync-bar {
+  background: #332B25;
+  border-color: rgba(236, 200, 128, 0.40);
+  color: #FAF6F0;
+}
+
+[data-theme="obsidian"] .db-sync-text {
+  color: #FAF6F0;
+  font-weight: 700;
+}
+
+[data-theme="obsidian"] .db-sync-time {
+  color: #ECC880;
+  border-left-color: rgba(236, 200, 128, 0.35);
+}
+
+[data-theme="obsidian"] .metric-pill {
+  background: #2A231E;
+  border-color: rgba(236, 200, 128, 0.22);
+}
+
+[data-theme="obsidian"] .metric-title {
+  color: #FAF6F0;
+}
+
+[data-theme="obsidian"] .metric-sub {
+  color: #D3C7B6;
+}
+
+[data-theme="obsidian"] .dock-btn {
+  color: #D3C7B6;
+}
+
+[data-theme="obsidian"] .dock-btn:hover {
+  color: #FFFFFF;
+  background: rgba(236, 200, 128, 0.16);
+}
+
+[data-theme="obsidian"] .dock-btn.active {
+  background: #3D322A;
+  border-color: #ECC880;
+  border-bottom: 2.5px solid #ECC880;
+  color: #FAF6F0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
 /* ==========================================================================
    3. ОБЩИЕ СТИЛИ, СБРОС И ТИПОГРАФИКА
    ========================================================================== */
@@ -626,14 +673,14 @@ body {
 /* Верхняя навигация */
 .nav-tabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   background: var(--bg-subtle);
   padding: 6px;
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--card-border);
   margin-top: 6px;
   width: 100%;
-  max-width: 860px;
+  max-width: 1000px;
   min-width: 0;
   box-sizing: border-box;
   overflow-x: auto;
@@ -651,14 +698,14 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
+  gap: 6px;
+  padding: 9px 14px;
   background: transparent;
   color: var(--text-dim);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   font-family: var(--font-ui);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.16s ease-out;
@@ -781,7 +828,7 @@ body {
    ========================================================================== */
 .voting-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
@@ -981,24 +1028,26 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding-left: 0;
+  gap: 20px;
+  padding-left: 56px;
 }
 
 .timeline-container::before {
   content: "";
   position: absolute;
-  left: 48px;
-  top: 15px;
-  bottom: 15px;
-  width: 2px;
-  background: linear-gradient(180deg, var(--gold-champagne), var(--gold-polished), var(--card-border-subtle));
-  z-index: 0;
+  left: 24px;
+  top: 20px;
+  bottom: 20px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold-champagne) 0%, var(--gold-polished) 50%, var(--gold-whisper) 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+  z-index: 1;
 }
 
 .timeline-card {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   background: var(--bg-card);
   border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
@@ -1009,7 +1058,7 @@ body {
   gap: 20px;
   box-shadow: var(--shadow-card);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .timeline-card:not(.has-actions) {
@@ -1022,18 +1071,43 @@ body {
   box-shadow: var(--shadow-hover);
 }
 
+/* Связующая золотая ветвь от вертикальной оси к карточке */
+.timeline-card::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-polished), var(--card-border));
+  z-index: 1;
+}
+
+/* Светящийся золотой узел таймлайна точно на вертикальной оси */
 .timeline-spine-dot {
   position: absolute;
-  left: 44px;
+  left: -32px;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2.5px solid var(--gold-polished);
+  box-shadow: 0 0 0 3px var(--bg-secondary), 0 0 12px rgba(212, 175, 55, 0.45);
+  z-index: 3;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-spine-dot::after {
+  content: "";
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--gold-polished);
-  border: 2px solid var(--bg-card);
-  box-shadow: 0 0 0 2px var(--gold-champagne);
-  display: none; /* скрыто на карточке для чистоты */
 }
 
 .timeline-time-block {
@@ -1807,8 +1881,28 @@ body {
     padding: 6px 8px;
   }
 
+  .timeline-container {
+    padding-left: 44px;
+  }
+
   .timeline-container::before {
-    left: 40px;
+    left: 18px;
+  }
+
+  .timeline-card::before {
+    left: -26px;
+    width: 26px;
+  }
+
+  .timeline-spine-dot {
+    left: -26px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .timeline-spine-dot::after {
+    width: 5px;
+    height: 5px;
   }
 
   .timeline-card {
@@ -1836,14 +1930,9 @@ body {
     grid-template-columns: 1fr;
   }
 
+  /* На мобильных устройствах нижний плавающий док является главным; верхние дублирующие табы скрываются для чистоты */
   .nav-tabs {
-    border-radius: var(--radius-md);
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .tab-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
+    display: none !important;
   }
   
   .floating-dock {

@@ -1180,11 +1180,15 @@ document.addEventListener("DOMContentLoaded", () => {
     playSound("tab");
     if (targetId === "top") {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      tabButtons.forEach(b => b.classList.remove("active"));
+      dockButtons.forEach(b => b.classList.toggle("active", b.dataset.dock === "top"));
       return;
     }
     const targetElement = document.getElementById(`tab-${targetId}`) || document.getElementById(targetId);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      tabButtons.forEach(b => b.classList.toggle("active", b.dataset.tab === targetId));
+      dockButtons.forEach(b => b.classList.toggle("active", b.dataset.dock === targetId));
     }
   }
 
@@ -1194,8 +1198,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.tab;
       navigateTo(target);
-      tabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
     });
   });
 
@@ -1205,8 +1207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.dock;
       navigateTo(target);
-      dockButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
     });
   });
 
@@ -1215,7 +1215,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if ("IntersectionObserver" in window && sections.length > 0) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && window.scrollY >= 150) {
           const sectionId = entry.target.id.replace("tab-", "");
           tabButtons.forEach(btn => {
             btn.classList.toggle("active", btn.dataset.tab === sectionId);
@@ -1226,12 +1226,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }, {
-      rootMargin: "-15% 0px -65% 0px",
+      rootMargin: "-10% 0px -60% 0px",
       threshold: 0.05
     });
 
     sections.forEach(s => observer.observe(s));
   }
+
+  // Подсветка кнопки «Вверх» при нахождении в шапке
+  window.addEventListener("scroll", () => {
+    if (window.scrollY < 180) {
+      tabButtons.forEach(btn => btn.classList.remove("active"));
+      dockButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.dock === "top");
+      });
+    }
+  }, { passive: true });
 
   const submitVoteBtn = document.getElementById("submitVoteBtn");
   const voterNameInput = document.getElementById("voterNameInput");

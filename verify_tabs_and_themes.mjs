@@ -43,18 +43,30 @@ server.listen(PORT, async () => {
     const hasDataThemeObsidian = resObsidian.stdout.includes('data-theme="obsidian"');
     console.log("- Data-theme Obsidian:", hasDataThemeObsidian ? "✅ PASSED" : "❌ FAILED");
 
-    // 3. Verify all 4 tabs exist in DOM
-    const hasTimeline = resIvory.stdout.includes('id="tab-timeline"');
+    // 3. Verify all 5 sections exist in DOM
     const hasVoting = resIvory.stdout.includes('id="tab-voting"');
+    const hasTimeline = resIvory.stdout.includes('id="tab-timeline"');
     const hasContest = resIvory.stdout.includes('id="tab-contest"');
+    const hasTraditions = resIvory.stdout.includes('id="tab-traditions"');
     const hasAdmin = resIvory.stdout.includes('id="tab-admin"');
-    console.log("- Tab Timeline:", hasTimeline ? "✅ PASSED" : "❌ FAILED");
-    console.log("- Tab Voting:", hasVoting ? "✅ PASSED" : "❌ FAILED");
-    console.log("- Tab Contest:", hasContest ? "✅ PASSED" : "❌ FAILED");
-    console.log("- Tab Admin (Чолпонка):", hasAdmin ? "✅ PASSED" : "❌ FAILED");
+    const hasCountdown = resIvory.stdout.includes('id="countdownCard"');
+    const hasFloatingDock = resIvory.stdout.includes('class="floating-dock"');
+    const hasTimelineSpine = resIvory.stdout.includes('timeline-spine-dot');
 
-    if (hasDataThemeIvory && hasDataThemeObsidian && hasTimeline && hasVoting && hasContest && hasAdmin) {
-      console.log("\n🎉 ALL THEMES AND TABS DEEPLY VERIFIED!");
+    console.log("- Section 01 (Voting):", hasVoting ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Section 02 (Timeline):", hasTimeline ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Section 03 (Contest):", hasContest ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Section 04 (Traditions):", hasTraditions ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Section 05 (Admin Чолпонка):", hasAdmin ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Countdown Timer (2027):", hasCountdown ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Floating Glass Dock:", hasFloatingDock ? "✅ PASSED" : "❌ FAILED");
+    console.log("- Timeline Spine Nodes:", hasTimelineSpine ? "✅ PASSED" : "❌ FAILED");
+
+    if (hasDataThemeIvory && hasDataThemeObsidian && hasVoting && hasTimeline && hasContest && hasTraditions && hasAdmin && hasCountdown && hasFloatingDock && hasTimelineSpine) {
+      console.log("\n🎉 ALL THEMES, 5 SECTIONS, COUNTDOWN AND DOCK DEEPLY VERIFIED!");
+    } else {
+      console.error("\n❌ Some checks failed!");
+      process.exit(1);
     }
   } catch (e) {
     console.error("Test error:", e);

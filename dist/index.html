@@ -9,6 +9,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=2027.boost">
+  <script>
+    (function() {
+      try {
+        var p = new URLSearchParams(window.location.search).get('theme');
+        var s = p || localStorage.getItem('portal_theme') || 'ivory';
+        if (s === 'obsidian' || s === 'ivory') {
+          document.documentElement.setAttribute('data-theme', s);
+        }
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body data-theme="ivory">
   <!-- Фоновый снегопад Canvas 60 FPS -->
