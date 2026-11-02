@@ -1,68 +1,172 @@
 /* ==========================================================================
    СЕМЕЙНЫЙ НОВОГОДНИЙ ПОРТАЛ 2027 // STYLESHEET
-   Стиль: Soft Warm Minimalism (Бежевый софт-стиль / Quiet Luxury)
-   Палитра: Молочный лен, слоновая кость, кашемир, капучино, благородное золото
+   QUIET LUXURY UI SUITE (AGENTS.md Sec 5 Compliance)
+   Тема 2: Gilded Ivory (Слоновая кость, 24K шампань-золото, деликатное тиснение)
+   Тема 3: Warm Obsidian (Глубокий шоколадно-бронзовый базальт, полированное золото)
+   Типографика: Cinzel (акценты/цифры) + Outfit (UI) + Plus Jakarta Sans (текст)
    Аппаратное ускорение (60 FPS), Pixel-Perfect & Mobile-First
    ========================================================================== */
 
-:root {
-  /* Базовая палитра: Теплый молочный лен и слоновая кость */
-  --bg-primary: #FDFBF7;
-  --bg-secondary: #F7F4EE;
-  --bg-subtle: #F3EDE4;
-  --card-bg: #FFFFFF;
-  --card-border: #EAE3D9;
-  --card-border-hover: #D8CEBF;
-  --card-hover: #FCFAF7;
+/* ==========================================================================
+   1. ПЕРЕМЕННЫЕ И ДИЗАЙН-СИСТЕМА (ТЕМА 2: GILDED IVORY ПО УМОЛЧАНИЮ)
+   ========================================================================== */
+:root,
+[data-theme="ivory"] {
+  --theme-name: "Gilded Ivory";
 
-  /* Акцентные плашки: Теплый кашемир и латте */
-  --accent-cashmere: #EADBCE;
-  --accent-latte: #DFD4C5;
-  --accent-cream: #FAF6EE;
-  --accent-champagne: #F5EBDD;
-  --accent-champagne-border: #DFD0BE;
+  /* Палитра Gilded Ivory (Слоновая кость и 24K Шампань) */
+  --bg-primary: #FFFFFA;
+  --bg-secondary: #FAF8F2;
+  --bg-subtle: #F5EFE4;
+  --bg-card: #FFFFFF;
+  --card-border: #DEC79B;
+  --card-border-subtle: rgba(212, 175, 55, 0.25);
+  --card-border-hover: #D4AF37;
+  --card-hover-bg: #FFFDF9;
 
-  /* Текст: Глубокий кофейный / графитовый и мягкий вторичный */
-  --text-main: #2E2620;
-  --text-muted: #7A6F66;
-  --text-dim: #9E9389;
+  /* 24K Золото и благородные металлы */
+  --gold-polished: #D4AF37;
+  --gold-champagne: #ECC880;
+  --gold-whisper: #C5A059;
+  --gold-embossed: #B5904D;
+  --gold-border-tactile: #DEC79B;
+  --gold-bottom-tactile: #C5A46D;
 
-  /* Кнопки: Теплый благородный капучино в богатый эспрессо */
-  --btn-cappuccino-start: #4A3E35;
-  --btn-cappuccino-end: #382F27;
-  --btn-cappuccino-hover: #2B231D;
-  --btn-text: #FDFBF7;
+  /* Текст: Глубокий шоколадно-кашемировый */
+  --text-main: #2F2720;
+  --text-chocolate: #382C1E;
+  --text-muted: #7A5722;
+  --text-dim: #8A7252;
+  --text-subtle: #A39686;
 
-  /* Элегантные теплые акценты для статусов */
-  --accent-gold: #B88E3A;
-  --accent-gold-soft: #8C6D2D;
-  --accent-rose: #9E3E33;
-  --accent-rose-soft: #FAF0ED;
-  --accent-rose-border: #E8CAC1;
-  --accent-sage: #3E7A53;
-  --accent-sage-soft: #EFF6F1;
-  --accent-sage-border: #C6DFC9;
+  /* Бейдж организатора (Чолпонка) */
+  --badge-bg: #F4E8D0;
+  --badge-border: #DEC79B;
+  --badge-text: #7A5722;
+  --badge-crown: #C5A059;
 
-  /* Скругления и тени Soft Warm Minimalism */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 26px;
-  --radius-full: 9999px;
+  /* Обычные тактильные кнопки (Secondary / Neutral) */
+  --btn-bg: linear-gradient(180deg, #FFFFFF 0%, #FAF8F2 100%);
+  --btn-border: #DEC79B;
+  --btn-bottom: 4px solid #C5A46D;
+  --btn-bottom-pressed: 1.5px solid #C5A46D;
+  --btn-text: #382C1E;
+  --btn-hover-border: #D4AF37;
+  --btn-hover-bottom: #B5904D;
+  --btn-hover-bg: #FAF8F4;
+  --btn-active-bg: #F8F2E4;
 
-  /* Мягчайшие естественные тени без неонового свечения */
-  --shadow-subtle: 0 4px 20px rgba(60, 45, 30, 0.03);
-  --shadow-card: 0 8px 30px rgba(60, 45, 30, 0.04), 0 1px 3px rgba(60, 45, 30, 0.02);
-  --shadow-hover: 0 14px 38px rgba(60, 45, 30, 0.08), 0 2px 6px rgba(60, 45, 30, 0.03);
-  --shadow-btn: 0 4px 16px rgba(56, 47, 39, 0.16);
-  --shadow-btn-hover: 0 6px 22px rgba(56, 47, 39, 0.24);
+  /* Главная кнопка (Primary: Теплый эспрессо и золото) */
+  --primary-btn-bg: linear-gradient(135deg, #4A3E35 0%, #352B24 100%);
+  --primary-btn-border: #DEC79B;
+  --primary-btn-bottom: 4px solid #231B16;
+  --primary-btn-bottom-pressed: 1.5px solid #231B16;
+  --primary-btn-text: #FFFFFA;
+  --primary-btn-hover-bg: linear-gradient(135deg, #5A4C41 0%, #3E332B 100%);
+  --primary-btn-hover-border: #D4AF37;
 
-  /* Типографика */
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Статусы */
+  --status-sage: #386B49;
+  --status-sage-bg: #EEF5F0;
+  --status-sage-border: #B7D9C0;
+  --status-rose: #9E3A2E;
+  --status-rose-bg: #FDF3F1;
+  --status-rose-border: #E8CAC1;
+
+  /* Тени с теплым свечением */
+  --shadow-soft: 0 4px 20px rgba(60, 45, 30, 0.04);
+  --shadow-card: 0 10px 36px rgba(212, 175, 55, 0.11), 0 2px 8px rgba(60, 45, 30, 0.03);
+  --shadow-hover: 0 14px 40px rgba(212, 175, 55, 0.20), 0 4px 12px rgba(60, 45, 30, 0.06);
+  --shadow-btn: 0 4px 14px rgba(212, 175, 55, 0.18);
+  --shadow-btn-hover: 0 6px 20px rgba(212, 175, 55, 0.28);
+
+  /* Фон страницы */
+  --body-bg-gradient: radial-gradient(circle at 10% 10%, rgba(244, 232, 208, 0.45) 0%, transparent 45%),
+                      radial-gradient(circle at 90% 15%, rgba(236, 200, 128, 0.25) 0%, transparent 45%),
+                      radial-gradient(circle at 50% 90%, rgba(245, 239, 228, 0.5) 0%, transparent 55%);
 }
 
+/* ==========================================================================
+   2. ПЕРЕМЕННЫЕ ДЛЯ ТЕМЫ 3: WARM OBSIDIAN (ВЕЧЕРНИЙ ТЕПЛЫЙ БАЗАЛЬТ)
+   ========================================================================== */
+[data-theme="obsidian"] {
+  --theme-name: "Warm Obsidian";
+
+  /* Палитра Warm Obsidian (Шоколадный базальт и золото) */
+  --bg-primary: #1E1A17;
+  --bg-secondary: #26201C;
+  --bg-subtle: #2D2520;
+  --bg-card: #251F1B;
+  --card-border: #3D332B;
+  --card-border-subtle: rgba(236, 200, 128, 0.15);
+  --card-border-hover: #ECC880;
+  --card-hover-bg: #2B231E;
+
+  /* Золото */
+  --gold-polished: #ECC880;
+  --gold-champagne: #D4AF37;
+  --gold-whisper: #C5A059;
+  --gold-embossed: #ECC880;
+  --gold-border-tactile: #4D4036;
+  --gold-bottom-tactile: #16120F;
+
+  /* Текст: Молочно-льняной и теплый приглушенный */
+  --text-main: #FAF6F0;
+  --text-chocolate: #FAF6F0;
+  --text-muted: #D3C7B6;
+  --text-dim: #A8988B;
+  --text-subtle: #7D736A;
+
+  /* Бейдж организатора (Чолпонка) */
+  --badge-bg: #382C24;
+  --badge-border: rgba(236, 200, 128, 0.35);
+  --badge-text: #ECC880;
+  --badge-crown: #ECC880;
+
+  /* Обычные тактильные кнопки Warm Obsidian */
+  --btn-bg: #2D2520;
+  --btn-border: #4D4036;
+  --btn-bottom: 3.5px solid #16120F;
+  --btn-bottom-pressed: 1.5px solid #16120F;
+  --btn-text: #FAF6F0;
+  --btn-hover-border: #ECC880;
+  --btn-hover-bottom: #16120F;
+  --btn-hover-bg: #382E27;
+  --btn-active-bg: #221B17;
+
+  /* Главная кнопка (Primary: Полированное золото) */
+  --primary-btn-bg: linear-gradient(135deg, #ECC880 0%, #D4AF37 100%);
+  --primary-btn-border: #FAF6F0;
+  --primary-btn-bottom: 4px solid #8F722E;
+  --primary-btn-bottom-pressed: 1.5px solid #8F722E;
+  --primary-btn-text: #1E1A17;
+  --primary-btn-hover-bg: linear-gradient(135deg, #F3D9A4 0%, #DFBA49 100%);
+  --primary-btn-hover-border: #FFFFFF;
+
+  /* Статусы */
+  --status-sage: #68BA80;
+  --status-sage-bg: #1F2D24;
+  --status-sage-border: #2D4C36;
+  --status-rose: #E26D5C;
+  --status-rose-bg: #341F1D;
+  --status-rose-border: #562E2A;
+
+  /* Тени глубокого базальта без синего неона */
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.40);
+  --shadow-card: 0 10px 36px rgba(0, 0, 0, 0.50), 0 1px 3px rgba(236, 200, 128, 0.06);
+  --shadow-hover: 0 16px 44px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(236, 200, 128, 0.16);
+  --shadow-btn: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-btn-hover: 0 6px 22px rgba(236, 200, 128, 0.25);
+
+  /* Фон страницы */
+  --body-bg-gradient: radial-gradient(circle at 15% 10%, rgba(56, 44, 36, 0.6) 0%, transparent 50%),
+                      radial-gradient(circle at 85% 20%, rgba(43, 36, 31, 0.7) 0%, transparent 50%),
+                      radial-gradient(circle at 50% 90%, rgba(30, 24, 20, 0.8) 0%, transparent 60%);
+}
+
+/* ==========================================================================
+   3. ОБЩИЕ СТИЛИ, СБРОС И ТИПОГРАФИКА
+   ========================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -70,23 +174,34 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+  --radius-full: 9999px;
+
+  --font-serif: 'Cinzel', Georgia, serif;
+  --font-heading: 'Cinzel', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(circle at 12% 8%, rgba(234, 219, 206, 0.5) 0%, transparent 45%),
-    radial-gradient(circle at 88% 12%, rgba(223, 212, 197, 0.45) 0%, transparent 45%),
-    radial-gradient(circle at 50% 90%, rgba(245, 239, 231, 0.6) 0%, transparent 55%);
+  background-image: var(--body-bg-gradient);
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Снегопад Canvas (нежные хлопья) */
+/* Фоновый снегопад Canvas */
 #snowCanvas {
   position: fixed;
   top: 0;
@@ -100,24 +215,33 @@ body {
 .app-container {
   position: relative;
   z-index: 2;
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 24px 20px 80px;
   display: flex;
   flex-direction: column;
   gap: 28px;
 }
 
 /* ==========================================================================
-   HERO ШАПКА
+   4. ШАПКА ПОРТАЛА (HERO & ТАКТИЛЬНЫЙ ПЕРЕКЛЮЧАТЕЛЬ ТЕМ)
    ========================================================================== */
 .hero-header {
-  text-align: center;
-  padding: 12px 8px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+  width: 100%;
+}
+
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 860px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .header-badge {
@@ -125,33 +249,94 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 18px;
-  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  border: 1px solid var(--accent-latte);
+  color: var(--text-dim);
+  background: var(--bg-card);
+  border: 1px solid var(--card-border-subtle);
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-subtle);
+  box-shadow: var(--shadow-soft);
 }
 
-/* Главная журнальная карточка ЧОЛПОНКА + НОВЫЙ ГОД */
+/* Элегантный тактильный переключатель тем */
+.theme-switch-bar {
+  display: inline-flex;
+}
+
+.theme-switch-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  gap: 4px;
+  box-shadow: var(--shadow-soft);
+}
+
+.theme-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+  user-select: none;
+}
+
+.theme-pill-btn:hover {
+  color: var(--text-main);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.theme-pill-btn.active {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+  border-bottom: 2.5px solid var(--gold-polished);
+  box-shadow: 0 2px 10px rgba(60, 45, 30, 0.08);
+}
+
+[data-theme="obsidian"] .theme-pill-btn.active {
+  background: #2D2520;
+  color: #FAF6F0;
+  border-color: #4D4036;
+  border-bottom: 2.5px solid #ECC880;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.theme-btn-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Главная акцентная карточка ЧОЛПОНКА + НОВЫЙ ГОД */
 .hero-highlight-card {
   width: 100%;
-  max-width: 820px;
-  padding: 36px 28px 28px;
+  max-width: 860px;
+  padding: 34px 28px 26px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   text-align: center;
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
+  transition: all 0.25s ease;
 }
 
 .hero-highlight-card::before {
@@ -160,26 +345,26 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 50%;
+  width: 55%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #DFD4C5, #C29B38, #DFD4C5, transparent);
+  background: linear-gradient(90deg, transparent, var(--gold-champagne), var(--gold-polished), var(--gold-champagne), transparent);
 }
 
-/* Эстетичный журнальный бейдж цвета шампанского / теплого золота */
+/* Золотой бейдж организатора «ЧОЛПОНКА» с тиснением */
 .hero-organizer-pill {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 8px 24px;
-  background: linear-gradient(135deg, #FFFDF8 0%, #F7EFE2 100%);
-  border: 1.5px solid var(--accent-champagne-border);
+  background: var(--badge-bg);
+  border: 1.5px solid var(--badge-border);
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 18px rgba(184, 142, 58, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.16);
+  transition: all 0.25s ease;
 }
 
 .hero-organizer-pill:hover {
-  box-shadow: 0 6px 24px rgba(184, 142, 58, 0.16);
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.26);
   transform: translateY(-1px);
 }
 
@@ -189,105 +374,94 @@ body {
 }
 
 .organizer-label {
-  font-size: 0.76rem;
-  font-weight: 700;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.16em;
-  color: #8C7A6B;
+  color: var(--badge-text);
   text-transform: uppercase;
 }
 
 .organizer-name-glow {
   font-family: var(--font-heading);
-  font-size: clamp(1.2rem, 3vw, 1.55rem);
+  font-size: clamp(1.2rem, 3.2vw, 1.6rem);
   font-weight: 800;
-  letter-spacing: 0.08em;
-  background: linear-gradient(135deg, #382F27 0%, #6E5326 50%, #382F27 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.1em;
+  color: var(--badge-text);
 }
 
-/* Элегантный заголовок НОВЫЙ ГОД 2027 в журнальном стиле */
+/* Главный заголовок НОВЫЙ ГОД 2027 в благородном стиле Cinzel */
 .hero-title-massive {
   font-family: var(--font-serif);
-  font-size: clamp(2.3rem, 6.5vw, 3.8rem);
-  font-weight: 700;
+  font-size: clamp(2.3rem, 6.8vw, 3.9rem);
+  font-weight: 900;
   line-height: 1.08;
-  letter-spacing: -0.01em;
+  letter-spacing: 1.5px;
   color: var(--text-main);
   text-transform: uppercase;
   margin-top: 2px;
 }
 
 .hero-festive-subtitle {
-  color: var(--text-muted);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
   font-size: clamp(0.92rem, 2vw, 1.05rem);
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 /* ==========================================================================
-   ОБЛАЧНАЯ БАЗА ДАННЫХ И ИНДИКАТОР СИНХРОНИЗАЦИИ
+   5. ОБЛАЧНАЯ БАЗА ДАННЫХ И ИНДИКАТОР СИНХРОНИЗАЦИИ
    ========================================================================== */
 .db-sync-bar {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 18px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--accent-latte);
+  padding: 7px 20px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--card-border-subtle);
   border-radius: var(--radius-full);
+  font-family: var(--font-ui);
   font-size: 0.82rem;
-  font-weight: 600;
-  color: #5C4E43;
-  box-shadow: var(--shadow-subtle);
-  transition: all 0.3s ease;
+  font-weight: 700;
+  color: var(--text-dim);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.25s ease;
   cursor: pointer;
   user-select: none;
 }
 
 .db-sync-bar:hover {
-  background: #EFE8DD;
-  border-color: #D3C5B3;
-}
-
-.db-sync-bar.syncing {
-  border-color: #D3B98C;
-  background: #F8F1E5;
-  color: #6E5326;
-}
-
-.db-sync-bar.offline {
-  border-color: var(--accent-rose-border);
-  background: var(--accent-rose-soft);
-  color: var(--accent-rose);
+  background: var(--card-hover-bg);
+  border-color: var(--card-border);
 }
 
 .db-sync-pulse {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background-color: var(--accent-sage);
-  box-shadow: 0 0 0 3px rgba(62, 122, 83, 0.16);
+  background-color: var(--status-sage);
+  box-shadow: 0 0 0 3px rgba(56, 107, 73, 0.2);
   display: inline-block;
   transition: all 0.3s ease;
 }
 
 .db-sync-bar.syncing .db-sync-pulse {
-  background-color: var(--accent-gold);
-  box-shadow: 0 0 0 3px rgba(184, 142, 58, 0.22);
+  background-color: var(--gold-polished);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
   animation: pulseSpin 1s infinite alternate;
 }
 
 .db-sync-bar.offline .db-sync-pulse {
-  background-color: var(--accent-rose);
-  box-shadow: 0 0 0 3px rgba(158, 62, 51, 0.18);
+  background-color: var(--status-rose);
+  box-shadow: 0 0 0 3px rgba(158, 58, 46, 0.2);
 }
 
 .db-sync-time {
   font-size: 0.76rem;
-  color: var(--text-dim);
+  color: var(--text-subtle);
   padding-left: 8px;
-  border-left: 1px solid var(--accent-latte);
+  border-left: 1px solid var(--card-border-subtle);
 }
 
 @keyframes pulseSpin {
@@ -296,7 +470,7 @@ body {
 }
 
 /* ==========================================================================
-   НАВИГАЦИОННЫЕ ВКЛАДКИ
+   6. НАВИГАЦИОННЫЕ ВКЛАДКИ
    ========================================================================== */
 .nav-tabs {
   display: flex;
@@ -304,12 +478,13 @@ body {
   background: var(--bg-subtle);
   padding: 6px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--accent-latte);
-  margin-top: 14px;
+  border: 1.5px solid var(--card-border);
+  margin-top: 10px;
   width: 100%;
-  max-width: 700px;
+  max-width: 740px;
   overflow-x: auto;
   scrollbar-width: none;
+  box-shadow: var(--shadow-soft);
 }
 .nav-tabs::-webkit-scrollbar {
   display: none;
@@ -324,49 +499,46 @@ body {
   gap: 8px;
   padding: 10px 18px;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-dim);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.16s ease-out;
   white-space: nowrap;
 }
 
 .tab-btn:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(212, 175, 55, 0.10);
 }
 
 .tab-btn.active {
   color: var(--text-main);
-  background: #FFFFFF;
-  border: 1px solid var(--accent-latte);
-  box-shadow: 0 3px 12px rgba(60, 45, 30, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-bottom: 2.5px solid var(--gold-polished);
+  box-shadow: 0 4px 14px rgba(60, 45, 30, 0.08);
 }
 
 .tab-btn.admin-tab.active {
-  background: #FFFFFF;
-  color: #382F27;
-  border-color: #D5C2AF;
-  box-shadow: 0 3px 14px rgba(60, 45, 30, 0.08);
+  border-color: var(--gold-champagne);
 }
 
 /* ==========================================================================
-   КОНТЕЙНЕРЫ И КАРТОЧКИ
+   7. СЕКЦИИ И ВКЛАДКИ КОНТЕНТА
    ========================================================================== */
 .main-content {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
 }
 
 .tab-pane {
   display: none;
   flex-direction: column;
-  gap: 24px;
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  gap: 22px;
+  animation: fadeIn 0.25s ease-out forwards;
 }
 
 .tab-pane.active {
@@ -378,69 +550,65 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.glass-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
 .pane-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
-  gap: 14px;
-  padding: 0 4px;
+  gap: 12px;
+  border-bottom: 1px solid var(--card-border-subtle);
+  padding-bottom: 12px;
 }
 
 .pane-title {
   font-family: var(--font-heading);
-  font-size: 1.45rem;
-  font-weight: 700;
+  font-size: clamp(1.3rem, 3.2vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
   color: var(--text-main);
 }
 
 .pane-desc {
-  color: var(--text-muted);
   font-size: 0.92rem;
-  margin-top: 3px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.timeline-summary-pill {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-full);
+  padding: 6px 16px;
+  color: var(--text-dim);
+  box-shadow: var(--shadow-soft);
+  white-space: nowrap;
 }
 
 /* ==========================================================================
-   1. ТАЙМЛАЙН / РАСПИСАНИЕ
+   8. ТАЙМЛАЙН (РАСПИСАНИЕ ПРАЗДНИКА)
    ========================================================================== */
-.timeline-summary-pill {
-  background: var(--bg-subtle);
-  color: #5C4E43;
-  border: 1px solid var(--accent-latte);
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
-  font-size: 0.88rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-subtle);
-}
-
 .timeline-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  position: relative;
+  gap: 14px;
 }
 
 .timeline-card {
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
   display: grid;
   grid-template-columns: 88px 1fr auto;
   align-items: center;
   gap: 18px;
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  padding: 18px 22px;
   box-shadow: var(--shadow-card);
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .timeline-card:not(.has-actions) {
@@ -448,40 +616,46 @@ body {
 }
 
 .timeline-card:hover {
-  background: var(--card-hover);
-  border-color: var(--card-border-hover);
   transform: translateY(-2px);
+  border-color: var(--card-border-hover);
   box-shadow: var(--shadow-hover);
 }
 
-.timeline-time-block {
+.timeline-time-col {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  padding-right: 14px;
+  border-right: 1px solid var(--card-border-subtle);
+  text-align: center;
 }
 
 .timeline-start-time {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
+.timeline-duration-badge {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #382F27;
+  color: var(--text-dim);
+  background: var(--bg-subtle);
+  border: 1px solid var(--card-border-subtle);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  margin-top: 4px;
+  white-space: nowrap;
 }
 
-.timeline-dur-badge {
-  font-size: 0.78rem;
-  color: #8C7A6B;
-  font-weight: 600;
-  background: var(--bg-secondary);
-  border: 1px solid var(--accent-latte);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  margin-top: 3px;
-}
-
-.timeline-info {
+.timeline-content-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .timeline-title-row {
@@ -492,70 +666,72 @@ body {
 
 .timeline-icon {
   font-size: 1.25rem;
+  line-height: 1;
 }
 
 .timeline-title {
-  font-size: 1.05rem;
+  font-family: var(--font-ui);
+  font-size: 1.08rem;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .timeline-desc {
   font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   line-height: 1.5;
 }
 
 .timeline-delete-btn {
   background: transparent;
   border: none;
-  color: var(--text-dim);
-  font-size: 1.1rem;
+  color: var(--text-subtle);
+  font-size: 1.15rem;
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   transition: all 0.2s;
 }
 
 .timeline-delete-btn:hover {
-  color: var(--accent-rose);
-  background: var(--accent-rose-soft);
+  color: var(--status-rose);
+  background: var(--status-rose-bg);
 }
 
 /* ==========================================================================
-   2. ГОЛОСОВАНИЕ ПО ДАТАМ
+   9. ГОЛОСОВАНИЕ ПО ДАТАМ
    ========================================================================== */
 .voting-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 18px;
 }
 
 .vote-card {
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
   cursor: pointer;
   box-shadow: var(--shadow-card);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
 .vote-card:hover {
-  border-color: var(--card-border-hover);
+  border-color: var(--gold-polished);
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 
 .vote-card.selected {
-  border-color: #8C7A6B;
-  background: #FDF9F4;
-  box-shadow: 0 6px 24px rgba(74, 62, 53, 0.09);
+  border-color: var(--gold-polished);
+  background: var(--card-hover-bg);
+  box-shadow: 0 8px 28px rgba(212, 175, 55, 0.22);
 }
 
 .vote-card-header {
@@ -570,42 +746,44 @@ body {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
+  letter-spacing: 0.4px;
 }
 
 .vote-count-badge {
+  font-family: var(--font-ui);
   font-size: 0.82rem;
-  font-weight: 700;
-  background: var(--bg-secondary);
-  border: 1px solid var(--accent-latte);
+  font-weight: 800;
+  background: var(--bg-subtle);
+  border: 1px solid var(--card-border);
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  color: #4A3E35;
+  color: var(--text-dim);
   white-space: nowrap;
 }
 
 .vote-card.selected .vote-count-badge {
-  background: var(--btn-cappuccino-start);
-  color: #FFFFFF;
-  border-color: var(--btn-cappuccino-end);
+  background: var(--gold-polished);
+  color: #1E1A17;
+  border-color: var(--gold-polished);
 }
 
 .vote-note {
   font-size: 0.86rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   line-height: 1.45;
 }
 
 .vote-progress-bar {
   width: 100%;
-  height: 6px;
-  background: var(--bg-secondary);
+  height: 7px;
+  background: var(--bg-subtle);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .vote-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #A89582, #4A3E35);
+  background: linear-gradient(90deg, var(--gold-champagne), var(--gold-polished));
   border-radius: var(--radius-full);
   transition: width 0.4s ease;
 }
@@ -619,24 +797,24 @@ body {
 
 .voter-tag {
   font-size: 0.75rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--accent-latte);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  background: var(--bg-subtle);
+  border: 1px solid var(--card-border-subtle);
   padding: 3px 10px;
   border-radius: var(--radius-full);
-  color: #5C4E43;
+  color: var(--text-dim);
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
 }
 
 .voter-tag-me {
-  background: var(--accent-cashmere);
-  border-color: #CDBFAC;
-  color: #2E2620;
-  font-weight: 700;
+  background: var(--badge-bg);
+  border-color: var(--gold-polished);
+  color: var(--text-main);
+  font-weight: 800;
 }
 
 .user-vote-box {
@@ -644,14 +822,15 @@ body {
   flex-direction: column;
   gap: 16px;
   margin-top: 10px;
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 26px;
   box-shadow: var(--shadow-card);
 }
 
 .vote-box-title {
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
@@ -668,34 +847,38 @@ body {
   min-width: 240px;
 }
 
-.vote-input-row .primary-btn {
-  white-space: nowrap;
-}
-
 .vote-hint {
   font-size: 0.84rem;
-  color: var(--text-dim);
+  color: var(--text-subtle);
 }
 
 /* ==========================================================================
-   3. КОНКУРС ДЕТЕЙ
+   10. ДЕТСКИЙ КОНКУРС
    ========================================================================== */
 .contest-rules-banner {
-  background: linear-gradient(135deg, #FAF6EE 0%, #F5EEE2 100%);
-  border: 1px solid var(--accent-champagne-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 26px;
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
+}
+
+.rules-header {
+  display: flex;
+  align-items: center;
 }
 
 .rules-badge {
-  background: var(--btn-cappuccino-start);
-  color: #FFFFFF;
+  background: var(--badge-bg);
+  border: 1px solid var(--card-border);
+  color: var(--badge-text);
+  font-family: var(--font-ui);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 5px 14px;
@@ -714,7 +897,7 @@ body {
   flex-direction: column;
   gap: 6px;
   font-size: 0.9rem;
-  color: #5C4E43;
+  color: var(--text-dim);
 }
 
 .rule-col strong {
@@ -722,6 +905,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-family: var(--font-ui);
   font-size: 0.96rem;
 }
 
@@ -732,8 +916,8 @@ body {
 }
 
 .contestant-card {
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-md);
   padding: 22px;
   display: flex;
@@ -741,12 +925,12 @@ body {
   gap: 14px;
   position: relative;
   box-shadow: var(--shadow-card);
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .contestant-card:hover {
   transform: translateY(-2px);
-  border-color: var(--card-border-hover);
+  border-color: var(--gold-polished);
   box-shadow: var(--shadow-hover);
 }
 
@@ -759,30 +943,20 @@ body {
 .contestant-name {
   font-family: var(--font-heading);
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-main);
+  letter-spacing: 0.4px;
 }
 
 .contestant-category {
+  font-family: var(--font-ui);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  background: var(--bg-secondary);
-  color: #6B5B4F;
-  border: 1px solid var(--accent-latte);
-}
-
-.contestant-category.cat-young {
-  background: #FAF6EE;
-  color: #8C6D2D;
-  border-color: #E6D8C4;
-}
-
-.contestant-category.cat-older {
-  background: #F4EFEA;
-  color: #5C4E43;
-  border-color: #D8CEBF;
+  background: var(--bg-subtle);
+  color: var(--text-dim);
+  border: 1px solid var(--card-border-subtle);
 }
 
 .contestant-details {
@@ -798,8 +972,8 @@ body {
 }
 
 .detail-label {
-  color: var(--text-dim);
-  min-width: 75px;
+  color: var(--text-subtle);
+  min-width: 78px;
   font-size: 0.88rem;
 }
 
@@ -815,41 +989,14 @@ body {
   align-items: center;
   margin-top: 4px;
   padding-top: 14px;
-  border-top: 1px solid #F0EAE1;
-}
-
-.like-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #FAF4EF;
-  color: #8B3A2E;
-  border: 1px solid #EBDAD0;
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.like-btn:hover {
-  background: #F5E5DC;
-  transform: scale(1.04);
-}
-
-.like-btn.liked {
-  background: #8B3A2E;
-  color: #FFFFFF;
-  border-color: #7A3025;
-  box-shadow: 0 4px 14px rgba(139, 58, 46, 0.22);
+  border-top: 1px solid var(--card-border-subtle);
 }
 
 /* ==========================================================================
-   4. КАБИНЕТ ОРГАНИЗАТОРА (ЧОЛПОНКА)
+   11. КАБИНЕТ ОРГАНИЗАТОРА (ЧОЛПОНКА)
    ========================================================================== */
 .auth-card {
-  max-width: 440px;
+  max-width: 460px;
   margin: 30px auto;
   text-align: center;
   display: flex;
@@ -857,6 +1004,10 @@ body {
   align-items: center;
   gap: 16px;
   padding: 36px 28px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
 }
 
 .lock-icon {
@@ -866,13 +1017,14 @@ body {
 .auth-title {
   font-family: var(--font-heading);
   font-size: 1.45rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.5px;
   color: var(--text-main);
 }
 
 .auth-desc {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .auth-input-group {
@@ -883,7 +1035,7 @@ body {
 
 .auth-note {
   font-size: 0.82rem;
-  color: var(--text-dim);
+  color: var(--text-subtle);
 }
 
 .admin-dashboard {
@@ -899,8 +1051,8 @@ body {
   flex-wrap: wrap;
   gap: 16px;
   padding: 20px 24px;
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
@@ -916,6 +1068,7 @@ body {
 }
 
 .admin-greeting h3 {
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
@@ -923,7 +1076,7 @@ body {
 
 .admin-greeting p {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .admin-actions {
@@ -936,8 +1089,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  background: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 26px;
   box-shadow: var(--shadow-card);
@@ -947,6 +1100,7 @@ body {
   font-family: var(--font-heading);
   font-size: 1.18rem;
   font-weight: 700;
+  letter-spacing: 0.4px;
   color: var(--text-main);
 }
 
@@ -967,130 +1121,201 @@ body {
 }
 
 .form-group label {
+  font-family: var(--font-ui);
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 /* ==========================================================================
-   ИНПУТЫ И КНОПКИ
+   12. ТАКТИЛЬНЫЕ КНОПКИ И ИНПУТЫ (ZERO SKEW & ФИЗИЧЕСКОЕ ВДАВЛИВАНИЕ -2PX)
    ========================================================================== */
 .custom-input {
-  background: #FFFFFF;
-  border: 1px solid var(--accent-latte);
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--card-border);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 11px 14px;
   color: var(--text-main);
   font-family: var(--font-body);
-  font-size: 16px; /* 16px prevents iOS Safari automatic viewport zooming on tap */
+  font-size: 16px; /* 16px prevents iOS Safari automatic viewport zooming */
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .custom-input:focus {
   outline: none;
-  border-color: #6B5B4F;
-  box-shadow: 0 0 0 3px rgba(107, 91, 79, 0.12);
-  background: #FFFFFF;
+  border-color: var(--gold-polished);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background: var(--bg-card);
 }
 
+/* Главная тактильная кнопка со вдавливанием */
 .primary-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--btn-cappuccino-start), var(--btn-cappuccino-end));
-  color: var(--btn-text);
-  border: none;
+  background: var(--primary-btn-bg);
+  color: var(--primary-btn-text);
+  border: 1px solid var(--primary-btn-border);
+  border-bottom: var(--primary-btn-bottom);
   border-radius: var(--radius-sm);
   padding: 11px 22px;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 0.94rem;
+  font-weight: 700;
   cursor: pointer;
   box-shadow: var(--shadow-btn);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.12s ease-out, border-bottom 0.12s ease-out, box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
 }
 
 .primary-btn:hover {
-  background: linear-gradient(135deg, var(--btn-cappuccino-end), var(--btn-cappuccino-hover));
-  transform: translateY(-1px);
+  background: var(--primary-btn-hover-bg);
+  border-color: var(--primary-btn-hover-border);
   box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-1px);
 }
 
-.primary-btn:active {
-  transform: translateY(1px);
+.primary-btn:active,
+.primary-btn.pressed {
+  transform: translateY(2px);
+  border-bottom: var(--primary-btn-bottom-pressed);
+  box-shadow: none;
 }
 
 .primary-btn.add-btn {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
 }
 
 .btn-arrow {
-  font-weight: 700;
+  font-weight: 800;
 }
 
+/* Вторичная тактильная кнопка */
 .secondary-btn {
-  background: var(--bg-subtle);
-  color: #4A3E35;
-  border: 1px solid var(--accent-latte);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 1px solid var(--btn-border);
+  border-bottom: var(--btn-bottom);
   border-radius: var(--radius-sm);
   padding: 8px 16px;
+  font-family: var(--font-ui);
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.12s ease-out, border-bottom 0.12s ease-out, background 0.15s ease;
+  user-select: none;
 }
 
 .secondary-btn:hover {
-  background: var(--accent-cashmere);
-  border-color: #CDBFAC;
-  color: var(--text-main);
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+  transform: translateY(-1px);
 }
 
+.secondary-btn:active,
+.secondary-btn.pressed {
+  transform: translateY(2px);
+  border-bottom: var(--btn-bottom-pressed);
+  background: var(--btn-active-bg);
+}
+
+/* Опасная кнопка (Выйти) */
 .danger-btn {
-  background: var(--accent-rose-soft);
-  color: var(--accent-rose);
-  border: 1px solid var(--accent-rose-border);
+  background: var(--status-rose-bg);
+  color: var(--status-rose);
+  border: 1px solid var(--status-rose-border);
+  border-bottom: 3.5px solid var(--status-rose);
   border-radius: var(--radius-sm);
   padding: 8px 16px;
+  font-family: var(--font-ui);
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.12s ease-out;
+  user-select: none;
 }
 
 .danger-btn:hover {
-  background: var(--accent-rose);
+  background: var(--status-rose);
   color: #FFFFFF;
 }
 
+.danger-btn:active {
+  transform: translateY(2px);
+  border-bottom: 1.5px solid var(--status-rose);
+}
+
+/* Кнопка лайка конкурсантам */
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--btn-bg);
+  color: var(--text-main);
+  border: 1px solid var(--btn-border);
+  border-bottom: var(--btn-bottom);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease-out, border-bottom 0.12s ease-out, background 0.15s ease;
+  user-select: none;
+}
+
+.like-btn:hover {
+  border-color: var(--gold-polished);
+  transform: translateY(-1px);
+}
+
+.like-btn:active,
+.like-btn.pressed {
+  transform: translateY(2px);
+  border-bottom: var(--btn-bottom-pressed);
+  background: var(--btn-active-bg);
+}
+
+.like-btn.liked {
+  background: var(--badge-bg);
+  border-color: var(--gold-polished);
+  color: var(--badge-text);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.22);
+}
+
 /* ==========================================================================
-   ПОДВАЛ И УВЕДОМЛЕНИЯ
+   13. ПОДВАЛ И УВЕДОМЛЕНИЯ
    ========================================================================== */
 .app-footer {
   text-align: center;
-  color: var(--text-dim);
+  color: var(--text-subtle);
   font-size: 0.86rem;
   padding-top: 24px;
-  border-top: 1px solid var(--card-border);
+  border-top: 1px solid var(--card-border-subtle);
 }
 
 .toast {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: #FFFFFF;
-  border: 1.5px solid var(--btn-cappuccino-start);
+  background: var(--bg-card);
+  border: 1.5px solid var(--gold-polished);
   color: var(--text-main);
   padding: 14px 22px;
   border-radius: var(--radius-md);
+  font-family: var(--font-ui);
   font-size: 0.92rem;
-  font-weight: 600;
-  box-shadow: 0 12px 36px rgba(60, 45, 30, 0.12), 0 2px 8px rgba(60, 45, 30, 0.04);
+  font-weight: 700;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
   z-index: 999;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -1105,14 +1330,19 @@ body {
 }
 
 /* ==========================================================================
-   АДАПТИВНОСТЬ (MOBILE-FIRST)
+   14. АДАПТИВНОСТЬ (MOBILE-FIRST)
    ========================================================================== */
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .app-container {
-    padding: 20px 14px 48px;
+    padding: 16px 14px 48px;
     gap: 20px;
   }
   
+  .header-top-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .hero-highlight-card {
     padding: 26px 18px 20px;
   }

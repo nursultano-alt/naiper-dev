@@ -166,6 +166,25 @@ async function runTests() {
   assert(stressResults.every(r => r.ok), "Все 10 одновременных запросов успешны");
   console.log(`✅ 10 одновременных запросов обработаны за ${tElapsed} мс (in-memory cache активен, квота спасена).`);
 
+  // 7.5 Проверка предотвращения залипания кэша для статических ассетов
+  console.log("[Тест 7.5] Проверка Cache-Control заголовков воркера для статических ассетов (max-age=0)...");
+  const mockAssetEnv = {
+    ASSETS: {
+      fetch: async (req) => {
+        return new Response("body content", {
+          status: 200,
+          headers: new Headers({ "Content-Type": "text/css" })
+        });
+      }
+    }
+  };
+  const assetResp = await worker.fetch(new Request("https://cholponkanewyear.naiper.dev/style.css"), mockAssetEnv);
+  assert.strictEqual(assetResp.status, 200);
+  assert.strictEqual(assetResp.headers.get("Cache-Control"), "public, max-age=0, must-revalidate", "Cache-Control должен быть max-age=0, must-revalidate");
+  assert.strictEqual(assetResp.headers.get("CDN-Cache-Control"), "public, max-age=0, must-revalidate");
+  console.log("✅ Worker гарантирует свежесть ассетов: 'Cache-Control: public, max-age=0, must-revalidate'.");
+
+
   // ОЧИСТКА: Удаление тестового события и сброс к эталонному состоянию
   console.log("\n[Очистка] Сброс базы к чистому эталонному состоянию перед сдачей...");
   const resetRes = await onRequestPost({

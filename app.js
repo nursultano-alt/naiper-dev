@@ -988,7 +988,71 @@ function renderAllViews(forceInputs = true) {
 }
 
 // ==========================================
-// 11. СНЕГОПАД НА CANVAS (60 FPS АППАРАТНОЕ УСКОРЕНИЕ)
+// 11. ТАКТИЛЬНЫЙ ПЕРЕКЛЮЧАТЕЛЬ ТЕМ (GILDED IVORY & WARM OBSIDIAN)
+// ==========================================
+const THEME_STORAGE_KEY = "portal_theme";
+
+function applyTheme(theme, save = true) {
+  if (theme !== "obsidian" && theme !== "ivory") {
+    theme = "ivory";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+  document.body.setAttribute("data-theme", theme);
+
+  if (save) {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (e) {}
+  }
+
+  const btnIvory = document.getElementById("themeBtnIvory");
+  const btnObsidian = document.getElementById("themeBtnObsidian");
+  if (btnIvory && btnObsidian) {
+    if (theme === "ivory") {
+      btnIvory.classList.add("active");
+      btnObsidian.classList.remove("active");
+    } else {
+      btnObsidian.classList.add("active");
+      btnIvory.classList.remove("active");
+    }
+  }
+}
+
+function initThemeSwitcher() {
+  let savedTheme = "ivory";
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramTheme = urlParams.get("theme");
+    if (paramTheme === "obsidian" || paramTheme === "ivory") {
+      savedTheme = paramTheme;
+    } else {
+      savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || "ivory";
+    }
+  } catch (e) {}
+  applyTheme(savedTheme, false);
+
+  const btnIvory = document.getElementById("themeBtnIvory");
+  const btnObsidian = document.getElementById("themeBtnObsidian");
+
+  if (btnIvory) {
+    btnIvory.addEventListener("click", () => {
+      playSound("tab");
+      applyTheme("ivory");
+      showToast("Тема: ☀️ Слоновая кость (Gilded Ivory)");
+    });
+  }
+
+  if (btnObsidian) {
+    btnObsidian.addEventListener("click", () => {
+      playSound("tab");
+      applyTheme("obsidian");
+      showToast("Тема: 🌙 Теплый обсидиан (Warm Obsidian)");
+    });
+  }
+}
+
+// ==========================================
+// 12. СНЕГОПАД НА CANVAS (60 FPS АППАРАТНОЕ УСКОРЕНИЕ)
 // ==========================================
 function initSnowCanvas() {
   const canvas = document.getElementById("snowCanvas");
@@ -1022,16 +1086,21 @@ function initSnowCanvas() {
       r: Math.random() * 2.2 + 0.8,
       speedY: Math.random() * 0.85 + 0.35,
       speedX: (Math.random() - 0.5) * 0.35,
-      opacity: Math.random() * 0.2 + 0.25 // Centered precisely at ~0.35
+      opacity: Math.random() * 0.2 + 0.25
     });
   }
 
   function renderSnow() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const isObsidian = document.documentElement.getAttribute("data-theme") === "obsidian";
+
     for (let f of flakes) {
       ctx.beginPath();
       ctx.arc(f.x * dpr, f.y * dpr, f.r * dpr, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(200, 185, 170, ${f.opacity})`;
+      // Адаптация цвета частиц под активную тему
+      ctx.fillStyle = isObsidian
+        ? `rgba(236, 200, 128, ${f.opacity * 1.15})`
+        : `rgba(212, 175, 55, ${f.opacity * 0.85})`;
       ctx.fill();
 
       f.y += f.speedY;
@@ -1051,9 +1120,12 @@ function initSnowCanvas() {
 }
 
 // ==========================================
-// 12. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
+// 13. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
+  // Инициализация темы Quiet Luxury
+  initThemeSwitcher();
+
   // Навигация по вкладкам
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabPanes = document.querySelectorAll(".tab-pane");

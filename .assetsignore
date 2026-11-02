@@ -5,3 +5,5 @@ functions/**
 *.md
 *.bat
 .git/**
+.github/**
+screenshot_*.png

@@ -8,6 +8,10 @@
     {
       "pattern": "cholponkanewyear.naiper.dev",
       "custom_domain": true
+    },
+    {
+      "pattern": "naiper.dev",
+      "custom_domain": true
     }
   ],
   "assets": {

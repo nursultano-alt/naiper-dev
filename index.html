@@ -1,24 +1,43 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="ivory">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Семейный Новый Год 2027 // План, Голосование и Конкурс</title>
+  <!-- Premium Fonts: Cinzel (акценты и цифры), Outfit (UI & кнопки), Plus Jakarta Sans (текст) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2027.luxury2">
 </head>
-<body>
+<body data-theme="ivory">
   <!-- Фоновый снегопад Canvas 60 FPS -->
   <canvas id="snowCanvas"></canvas>
 
   <div class="app-container">
     <!-- Шапка портала -->
     <header class="hero-header">
-      <div class="header-badge">❄️ СЕМЕЙНЫЙ ПОРТАЛ • 2027 ❄️</div>
+      
+      <!-- Верхняя панель: Бейдж портала и тактильный переключатель тем -->
+      <div class="header-top-row">
+        <div class="header-badge">✦ СЕМЕЙНЫЙ ПОРТАЛ • 2027 ✦</div>
+        
+        <!-- Элегантный тактильный переключатель тем (Gilded Ivory / Warm Obsidian) -->
+        <div class="theme-switch-bar">
+          <div class="theme-switch-pill" role="group" aria-label="Выбор темы оформления">
+            <button type="button" class="theme-pill-btn active" id="themeBtnIvory" data-theme="ivory" title="Дневная тема: Слоновая кость (#FFFFFA) и 24K шампань-золото">
+              <span class="theme-btn-icon">☀️</span>
+              <span class="theme-btn-text">Слоновая кость</span>
+            </button>
+            <button type="button" class="theme-pill-btn" id="themeBtnObsidian" data-theme="obsidian" title="Вечерняя тема: Теплый шоколадно-бронзовый базальт (#1E1A17) и полированное золото">
+              <span class="theme-btn-icon">🌙</span>
+              <span class="theme-btn-text">Теплый обсидиан</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <!-- Главный акцентный блок: ЧОЛПОНКА и НОВЫЙ ГОД -->
+      <!-- Главный акцентный блок: ЧОЛПОНКА и НОВЫЙ ГОД 2027 -->
       <div class="hero-highlight-card glass-card">
         <div class="hero-organizer-pill">
           <span class="crown-icon">👑</span>
@@ -280,6 +299,6 @@
   <!-- Модальное уведомление -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2027.luxury2"></script>
 </body>
 </html>
