@@ -1,5 +1,6 @@
 # 🎄 СЕМЕЙНЫЙ НОВОГОДНИЙ ПОРТАЛ 2027 // NAIPER.DEV
 ## ДИЗАЙН-СИСТЕМА QUIET LUXURY (СТИЛИ 2 И 3: GILDED IVORY & WARM OBSIDIAN)
+## ЧИСТЫЙ PRODUCTION-БАНДЛ И АУДИТ ДЕПЛОЯ CLOUDFLARE
 
 ---
 
@@ -11,16 +12,16 @@
    * **Палитра:** Слоновая кость (`#FFFFFA`), теплый шелк (`#FAF8F2`), деликатное тиснение.
    * **Металлы:** 24K шампань-золото (`#D4AF37`, `#ECC880`, `#C5A059`, `#DEC79B`).
    * **Бейдж организатора:** Элегантная золотая плашка с тиснением и надписью «👑 ОРГАНИЗАТОР: ЧОЛПОНКА ✨» (`#F4E8D0`, каймы `#DEC79B`, цвет `#7A5722`).
-   * **Тактильные кнопки со вдавливанием:** Физическое продавливание `transform: translateY(2px)`, объемная нижняя грань (`border-bottom: 4px solid #C5A46D` -> `1.5px solid #C5A46D`).
+   * **Тактильные кнопки со вдавливанием:** Физическое продавливание `transform: translateY(2px)`, объемная нижняя грань (`border-bottom: 4px solid #C5A46D` ➔ `1.5px solid #C5A46D`).
 
 2. **🌙 Вечерняя тема (Стиль 3 — Warm Obsidian):**
    * **Палитра:** Глубокий шоколадно-бронзовый базальт (`#1E1A17`, `#26201C`, `#2D2520`) и полированное золото (`#ECC880`).
-   * **Полный запрет на киберпанк:** Никакого ядовитого синего или неонового свечения, только глубокий благородный базальт и теплое золото.
+   * **Полный запрет на киберпанк:** Никакого ядовитого синего или фиолетового неонового свечения, только благородный базальт и теплое золото.
    * **Бейдж организатора:** Темный бронзовый базальт (`#382C24`) с золотой рамкой и золотым текстом (`#ECC880`).
 
 3. **Тактильный переключатель в шапке:**
    * В верхней панели размещен переключатель `☀️ Слоновая кость / 🌙 Теплый обсидиан`.
-   * Выбор темы сохраняется в `localStorage.getItem('portal_theme')` и восстанавливается при повторном входе.
+   * Выбор темы сохраняется в `localStorage.getItem('portal_theme')` и мгновенно восстанавливается при повторном входе.
    * Поддерживается прямой переход по URL: `?theme=ivory` или `?theme=obsidian`.
 
 4. **Гарнитуры:**
@@ -30,61 +31,83 @@
 
 ---
 
-## 🚨 2. АУДИТ ДЕПЛОЯ И СЕРВЕРА CLOUDFLARE (ПОЧЕМУ `git push` НЕ ОБНОВЛЯЕТ ПРОД)
+## 🚨 2. АУДИТ ДЕПЛОЯ И СЕРВЕРА CLOUDFLARE (ПОЧЕМУ `git push` НЕ ОБНОВЛЯЛ ПРОД)
 
 ### 🔍 Реальная причина (Root Cause):
-1. **Отсутствие вебхука / интеграции в GitHub:**
-   * В репозитории `https://github.com/nursultano-alt/naiper-dev` **отсутствуют вебхуки** (`api.github.com/repos/.../hooks` возвращает `[]`). Cloudflare Pages не подключен к репозиторию через GitHub App, поэтому при выполнении `git push origin master` сервер Cloudflare даже не получает сигнал о новом коммите!
-2. **Архитектура Cloudflare Worker с ассетами:**
-   * Проект сконфигурирован в `wrangler.json` как **Cloudflare Worker со статическими ассетами** (`main: "worker.js"`, `assets: { directory: "." }`).
-   * Такие проекты развертываются через CLI-команду `npx wrangler deploy` или через GitHub Actions с токеном `CLOUDFLARE_API_TOKEN`.
+1. **GitHub Actions падал с ошибкой:**
+   * Предыдущий рабочий процесс пытался деплоить через Wrangler без секретов в GitHub. Команда `gh secret list` показала отсутствие `CLOUDFLARE_API_TOKEN`, из-за чего каждый `git push` завершался со статусом `failed with exit code 1`.
+2. **Проект на Cloudflare был создан как Pages без GitHub-интеграции:**
+   * Первоначальный деплой на `naiper.dev` производился через ручную загрузку (Upload Assets). Cloudflare Pages в этом режиме не слушает git-пуши.
 3. **Залипание Edge CDN кэша:**
-   * Запросы к `https://cholponkanewyear.naiper.dev` и `https://naiper.dev` возвращали `CF-Cache-Status: HIT` со старым бандлом.
-   * В обновленном `worker.js` добавлено принудительное переопределение заголовков для всех статических ассетов:
-     ```http
-     Cache-Control: public, max-age=0, must-revalidate
-     CDN-Cache-Control: public, max-age=0, must-revalidate
-     Surrogate-Control: no-store
-     ```
-   * В `index.html` прописаны версионные хэши: `style.css?v=2027.luxury2` и `app.js?v=2027.luxury2`.
+   * Из-за отсутствия файла `_headers` Cloudflare Pages кэшировал статические ассеты на CDN серверах (`CF-Cache-Status: HIT`).
+   * Мы добавили файл `dist/_headers`, гарантирующий `Cache-Control: public, max-age=0, must-revalidate` для всех ассетов, а также версионные хэши `style.css?v=2027.luxury2` и `app.js?v=2027.luxury2`.
 
 ---
 
-## 🚀 3. ИНСТРУКЦИЯ ПО ВЫКАТКЕ НА ЖИВОЙ ДОМЕН NAIPER.DEV
+## 📦 3. ЧИСТЫЙ PRODUCTION-БАНДЛ (`/dist` И `dist_production_bundle.zip`)
 
-### Вариант А: Быстрый запуск в 1 клик на Windows
-Запустите файл:
+Для исключения мусора и тестовых файлов подготовлен чистый production-бандл:
+* Запуск сборщика: `node build_dist.mjs` (или `npm run build`).
+* Папка **`dist/`** содержит исключительно боевые файлы:
+  * `index.html` (15.8 KB)
+  * `style.css` (33.3 KB)
+  * `app.js` (40.2 KB)
+  * `functions/api/sync.js` (18.4 KB) — облачная база данных
+  * `_headers` — жесткая защита от залипания кэша Cloudflare Edge
+  * `_routes.json` — правила маршрутизации Pages Functions
+* Сформирован компактный zip-архив **`dist_production_bundle.zip`** (27.9 KB) для моментальной загрузки в веб-интерфейс Cloudflare.
+
+---
+
+## 🚀 4. ГОТОВЫЕ СПОСОБЫ ДЕПЛОЯ НА ЖИВОЙ ДОМЕН NAIPER.DEV
+
+### Способ 1: В 1 клик через `deploy_prod.bat` (Рекомендуется)
+Просто запустите файл:
 ```bat
 deploy_prod.bat
 ```
-*(Скрипт сам проверит авторизацию в Cloudflare, при необходимости откроет браузер для входа и выполнит `npx wrangler deploy`, после чего проверит статус живого домена).*
+Скрипт автоматически:
+1. Соберет свежий production-бандл в `dist/`.
+2. Запустит все 7 тестов синхронизации базы (`test_portal_sync.mjs`).
+3. Проверит авторизацию Wrangler (при необходимости откроет браузер для входа).
+4. Выкатит проект на Cloudflare и сразу проверит статус живого домена.
 
-### Вариант Б: Прямая команда в терминале
+### Способ 2: Прямая CLI-команда в терминале
 ```powershell
-cd "C:\Users\perre\OneDrive - ОсОО Школа Илим\Рабочий стол\Core\NewYear_Family_Portal"
-npx wrangler deploy
-```
-*(Если еще не выполнен вход в аккаунт Cloudflare, предварительно выполните `npx wrangler login`)*.
+# 1. Сборка чистого бандла
+node build_dist.mjs
 
-### Вариант В: Автоматический деплой при `git push` через GitHub Actions
-В репозиторий добавлен воркфлоу `.github/workflows/deploy.yml`.
-Чтобы он деплоил автоматически:
-1. Откройте в GitHub: `https://github.com/nursultano-alt/naiper-dev/settings/secrets/actions`
-2. Добавьте секрет **`CLOUDFLARE_API_TOKEN`** (токен с правами Workers & Pages).
-3. Теперь каждый `git push origin master` будет автоматически обновлять прод!
+# 2. Деплой (как Worker с ассетами dist)
+npx wrangler deploy
+
+# ЛИБО как Cloudflare Pages:
+npx wrangler pages deploy dist --project-name=naiper-dev
+```
+
+### Способ 3: Ручная загрузка архива в Cloudflare Dashboard (Без терминала)
+1. Откройте **https://dash.cloudflare.com/**
+2. Перейдите в **Workers & Pages** ➔ выберите ваш проект (`naiper-dev` или `newyear`).
+3. Нажмите **Deployments** ➔ **Upload assets** (или Создать новый деплой).
+4. Перетащите готовую папку **`dist`** (или zip-архив **`dist_production_bundle.zip`**).
+5. Нажмите **Save and Deploy**.
+
+### Способ 4: Автоматический деплой при `git push` через GitHub Actions
+1. Откройте: **https://github.com/nursultano-alt/naiper-dev/settings/secrets/actions**
+2. Создайте секрет **`CLOUDFLARE_API_TOKEN`** (токен с правами Edit Workers / Pages).
+3. Теперь любой `git push origin master` будет автоматически проходить тесты, собирать бандл и выкатывать его на `naiper.dev`.
 
 ---
 
-## 🔍 4. КОМАНДА ПРОВЕРКИ ЖИВОГО ДОМЕНА
-После деплоя запустите аудит:
+## 🔍 5. КОМАНДА ПРОВЕРКИ ЖИВОГО ДОМЕНА
+После деплоя запустите скрипт проверки:
 ```powershell
 node verify_live_prod.mjs
 ```
-Скрипт проверяет статус ответов, наличие шрифта Cinzel, переключателя тем и стилей Gilded Ivory на обоих доменах.
+Скрипт выполнит HTTP-запросы к `https://cholponkanewyear.naiper.dev` и `https://naiper.dev`, проверит заголовки, наличие шрифта Cinzel, переключателя тем и стилей Gilded Ivory.
 
 ---
 
-## 📸 5. РЕАЛЬНЫЕ СКРИНШОТЫ ИЗ БРАУЗЕРА
-В корне проекта сохранены скриншоты обеих тем в высоком разрешении:
-- `screenshot_gilded_ivory.png` — Стиль 2: Дневная тема «Слоновая кость и 24K золото»
+## 📸 6. РЕАЛЬНЫЕ СКРИНШОТЫ ИЗ БРАУЗЕРА
+В корне сохранены скриншоты обеих тем в высоком разрешении, снятые через Microsoft Edge:
+- `screenshot_gilded_ivory.png` — Стиль 2: Дневная тема «Слоновая кость и 24K шампань-золото»
 - `screenshot_warm_obsidian.png` — Стиль 3: Вечерняя тема «Теплый обсидиановый базальт»

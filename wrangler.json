@@ -15,6 +15,6 @@
     }
   ],
   "assets": {
-    "directory": "."
+    "directory": "dist"
   }
 }

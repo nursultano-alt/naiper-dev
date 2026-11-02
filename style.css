@@ -299,6 +299,10 @@ body {
   background: rgba(212, 175, 55, 0.12);
 }
 
+.theme-pill-btn:active {
+  transform: translateY(1.5px);
+}
+
 .theme-pill-btn.active {
   background: var(--bg-card);
   color: var(--text-main);
@@ -515,6 +519,10 @@ body {
   background: rgba(212, 175, 55, 0.10);
 }
 
+.tab-btn:active {
+  transform: translateY(1.5px);
+}
+
 .tab-btn.active {
   color: var(--text-main);
   background: var(--bg-card);
@@ -726,6 +734,10 @@ body {
   border-color: var(--gold-polished);
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
+}
+
+.vote-card:active {
+  transform: translateY(1.5px);
 }
 
 .vote-card.selected {

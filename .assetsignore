@@ -4,6 +4,8 @@ functions/**
 *.mjs
 *.md
 *.bat
+*.zip
 .git/**
 .github/**
 screenshot_*.png
+package*.json

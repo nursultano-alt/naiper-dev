@@ -1,4 +1,4 @@
-name: Deploy New Year Family Portal to Cloudflare
+name: Build, Test & Deploy New Year Portal to Cloudflare
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    name: Deploy to Cloudflare Workers / Pages
+    name: Build, Verify and Deploy
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -19,11 +19,37 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
-        run: npm install wrangler --save-dev
+      - name: Install Wrangler
+        run: npm install -g wrangler
 
-      - name: Deploy via Wrangler
-        uses: cloudflare/wrangler-action@v3
+      - name: Run Database Sync & Integration Tests
+        run: node test_portal_sync.mjs
+
+      - name: Build Clean Production Bundle (dist)
+        run: node build_dist.mjs
+
+      - name: Upload Production Bundle Artifact
+        uses: actions/upload-artifact@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          name: portal-production-bundle
+          path: |
+            dist/
+            dist_production_bundle.zip
+          retention-days: 30
+
+      - name: Deploy to Cloudflare
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      - name: Deployment Notice (If Token Missing)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        run: |
+          echo "::warning title=Cloudflare Token Missing::Секрет CLOUDFLARE_API_TOKEN не настроен в репозитории GitHub. Бандл успешно собран и сохранен в Artifacts. Для включения авто-деплоя при git push добавьте CLOUDFLARE_API_TOKEN в Settings -> Secrets -> Actions."
+          echo "### ⚠️ Cloudflare Deployment Notice" >> $GITHUB_STEP_SUMMARY
+          echo "Для автоматического обновления живого домена **naiper.dev** через GitHub Actions:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Откройте: https://github.com/nursultano-alt/naiper-dev/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
+          echo "2. Добавьте секрет **CLOUDFLARE_API_TOKEN**" >> $GITHUB_STEP_SUMMARY
+          echo "Либо выполните деплой в 1 клик с локального ПК через **deploy_prod.bat**." >> $GITHUB_STEP_SUMMARY

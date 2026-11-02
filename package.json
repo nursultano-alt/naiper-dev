@@ -1,0 +1,18 @@
+{
+  "name": "naiper-dev",
+  "version": "2027.2.0",
+  "description": "Семейный Новогодний Портал 2027 (Quiet Luxury UI Suite)",
+  "type": "module",
+  "scripts": {
+    "build": "node build_dist.mjs",
+    "test": "node test_portal_sync.mjs",
+    "test:browser": "node run_browser_test.mjs",
+    "screenshots": "node capture_browser_screenshots.mjs",
+    "verify:live": "node verify_live_prod.mjs",
+    "deploy:worker": "wrangler deploy",
+    "deploy:pages": "wrangler pages deploy dist --project-name=naiper-dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.1"
+  }
+}

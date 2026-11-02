@@ -1,0 +1,13 @@
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
+  Surrogate-Control: no-store
+  Access-Control-Allow-Origin: *
+
+/style.css*
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
+
+/app.js*
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate

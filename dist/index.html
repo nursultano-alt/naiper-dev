@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="ivory">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Семейный Новый Год 2027 // План, Голосование и Конкурс</title>
+  <!-- Premium Fonts: Cinzel (акценты и цифры), Outfit (UI & кнопки), Plus Jakarta Sans (текст) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2027.luxury2">
+</head>
+<body data-theme="ivory">
+  <!-- Фоновый снегопад Canvas 60 FPS -->
+  <canvas id="snowCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Шапка портала -->
+    <header class="hero-header">
+      
+      <!-- Верхняя панель: Бейдж портала и тактильный переключатель тем -->
+      <div class="header-top-row">
+        <div class="header-badge">✦ СЕМЕЙНЫЙ ПОРТАЛ • 2027 ✦</div>
+        
+        <!-- Элегантный тактильный переключатель тем (Gilded Ivory / Warm Obsidian) -->
+        <div class="theme-switch-bar">
+          <div class="theme-switch-pill" role="group" aria-label="Выбор темы оформления">
+            <button type="button" class="theme-pill-btn active" id="themeBtnIvory" data-theme="ivory" title="Дневная тема: Слоновая кость (#FFFFFA) и 24K шампань-золото">
+              <span class="theme-btn-icon">☀️</span>
+              <span class="theme-btn-text">Слоновая кость</span>
+            </button>
+            <button type="button" class="theme-pill-btn" id="themeBtnObsidian" data-theme="obsidian" title="Вечерняя тема: Теплый шоколадно-бронзовый базальт (#1E1A17) и полированное золото">
+              <span class="theme-btn-icon">🌙</span>
+              <span class="theme-btn-text">Теплый обсидиан</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Главный акцентный блок: ЧОЛПОНКА и НОВЫЙ ГОД 2027 -->
+      <div class="hero-highlight-card glass-card">
+        <div class="hero-organizer-pill">
+          <span class="crown-icon">👑</span>
+          <span class="organizer-label">ОРГАНИЗАТОР:</span>
+          <span class="organizer-name-glow">ЧОЛПОНКА</span>
+          <span class="sparkle-icon">✨</span>
+        </div>
+
+        <h1 class="hero-title-massive">
+          НОВЫЙ ГОД 2027
+        </h1>
+
+        <div class="hero-festive-subtitle">
+          🎄 Праздничный план дня • Голосование дат • Детский конкурс 🎄
+        </div>
+
+        <!-- Индикатор живой облачной базы данных -->
+        <div class="db-sync-bar" id="dbSyncStatusBar" title="Единая база данных для всех родственников">
+          <span class="db-sync-pulse" id="dbSyncPulse"></span>
+          <span class="db-sync-text" id="dbSyncText">Облачная база: В сети • Живая синхронизация</span>
+          <span class="db-sync-time" id="dbSyncTime">только что</span>
+        </div>
+      </div>
+      
+      <!-- Навигационные вкладки -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="timeline">
+          <span class="tab-icon">🕒</span>
+          <span class="tab-text">План дня</span>
+        </button>
+        <button class="tab-btn" data-tab="voting">
+          <span class="tab-icon">🗳️</span>
+          <span class="tab-text">Голосование дат</span>
+        </button>
+        <button class="tab-btn" data-tab="contest">
+          <span class="tab-icon">🎭</span>
+          <span class="tab-text">Конкурс детей</span>
+        </button>
+        <button class="tab-btn admin-tab" data-tab="admin">
+          <span class="tab-icon">⚙️</span>
+          <span class="tab-text">Кабинет Чолпонки</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+
+      <!-- ================= 1. ВКЛАДКА: ПЛАН ДНЯ (ТАЙМЛАЙН) ================= -->
+      <section id="tab-timeline" class="tab-pane active">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Расписание праздничного дня</h2>
+            <p class="pane-desc">Точный таймлайн с длительностью каждого события от организатора</p>
+          </div>
+          <div class="timeline-summary-pill" id="totalDurationBadge">
+            ⏳ Итого: 0 ч 0 мин
+          </div>
+        </div>
+
+        <div class="timeline-container" id="timelineList">
+          <!-- Рендерится через JS -->
+        </div>
+      </section>
+
+      <!-- ================= 2. ВКЛАДКА: ГОЛОСОВАНИЕ ПО ДАТАМ ================= -->
+      <section id="tab-voting" class="tab-pane">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Когда собираемся всей семьей?</h2>
+            <p class="pane-desc">Выберите наиболее удобный день для встречи (выбор можно изменить в любой момент)</p>
+          </div>
+        </div>
+
+        <div class="voting-grid" id="votingGrid">
+          <!-- Рендерится через JS -->
+        </div>
+
+        <div class="user-vote-box glass-card">
+          <h3 class="vote-box-title">👋 Ваше имя и голос</h3>
+          <div class="vote-input-row">
+            <input type="text" id="voterNameInput" class="custom-input" placeholder="Введите ваше имя (напр. Медер, Дастан...)">
+            <button class="primary-btn" id="submitVoteBtn">
+              <span>Зафиксировать голос</span>
+              <span class="btn-arrow">✓</span>
+            </button>
+          </div>
+          <p class="vote-hint">💡 Вы можете поменять свой выбор в любой момент, введя то же имя.</p>
+        </div>
+      </section>
+
+      <!-- ================= 3. ВКЛАДКА: ДЕТСКИЙ КОНКУРС ================= -->
+      <section id="tab-contest" class="tab-pane">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">Новогодний конкурс костюмов и талантов</h2>
+            <p class="pane-desc">Номера, пародии, танцы и узнаваемые костюмы с подарками от организаторов!</p>
+          </div>
+        </div>
+
+        <!-- Правила конкурса -->
+        <div class="contest-rules-banner glass-card">
+          <div class="rules-header">
+            <span class="rules-badge">Условия конкурса от Чолпонки</span>
+          </div>
+          <div class="rules-columns">
+            <div class="rule-col">
+              <span class="col-icon">🎈</span>
+              <strong>До 10 лет:</strong>
+              <p>Необычный костюм, грим, спеть песенку, станцевать, спародировать персонажа или показать сценку — каждый участник получает приз!</p>
+            </div>
+            <div class="rule-col">
+              <span class="col-icon">⭐</span>
+              <strong>10–18 лет:</strong>
+              <p>Более строгие критерии и весомый приз: полностью проработанный узнаваемый образ, грим и полноценный отрепетированный творческий номер.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Сетка участников конкурса -->
+        <div class="participants-grid" id="contestList">
+          <!-- Рендерится через JS -->
+        </div>
+      </section>
+
+      <!-- ================= 4. ВКЛАДКА: КАБИНЕТ ОРГАНИЗАТОРА (ЧОЛПОНКА) ================= -->
+      <section id="tab-admin" class="tab-pane">
+        <!-- Блок авторизации админа -->
+        <div id="adminAuthLock" class="glass-card auth-card">
+          <div class="lock-icon">🔐</div>
+          <h2 class="auth-title">Кабинет Организатора</h2>
+          <p class="auth-desc">Доступ для Чолпонки для гибкой настройки расписания и управления праздником</p>
+          <div class="auth-input-group">
+            <input type="password" id="adminPassInput" class="custom-input" placeholder="Введите пин-код (по умолч. 2027)" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <button class="primary-btn" id="adminLoginBtn">Войти в панель</button>
+          </div>
+          <span class="auth-note">💡 Пин-код по умолчанию: <b>2027</b></span>
+        </div>
+
+        <!-- Панель управления (открывается после ввода пина) -->
+        <div id="adminPanel" class="admin-dashboard hidden">
+          <div class="admin-header-bar glass-card">
+            <div class="admin-greeting">
+              <span class="greeting-icon">👑</span>
+              <div>
+                <h3>Панель управления • Чолпонка</h3>
+                <p>Все изменения сразу сохраняются и обновляют портал</p>
+              </div>
+            </div>
+            <div class="admin-actions">
+              <button class="secondary-btn" id="adminExportBtn">📥 Сохранить копию</button>
+              <button class="secondary-btn" id="adminImportBtn">📤 Загрузить копию</button>
+              <input type="file" id="adminFileInput" accept=".json" style="display:none">
+              <button class="secondary-btn" id="adminResetBtn">🔄 Сброс по умолчанию</button>
+              <button class="danger-btn" id="adminLogoutBtn">Выйти</button>
+            </div>
+          </div>
+
+          <!-- Конструктор расписания -->
+          <div class="admin-section glass-card">
+            <div class="section-title-row">
+              <h3>➕ Добавить событие в расписание дня</h3>
+            </div>
+            <form id="addEventForm" class="admin-form-grid">
+              <div class="form-group">
+                <label>Название события</label>
+                <input type="text" id="evTitle" class="custom-input" placeholder="Напр. Торжественный ужин и тосты" required>
+              </div>
+              <div class="form-group">
+                <label>Время начала</label>
+                <input type="time" id="evTime" class="custom-input" value="18:00" required>
+              </div>
+              <div class="form-group">
+                <label>Длительность (в минутах)</label>
+                <input type="number" id="evDuration" class="custom-input" placeholder="45" value="45" min="5" max="300" required>
+              </div>
+              <div class="form-group">
+                <label>Иконка / Эмодзи</label>
+                <input type="text" id="evIcon" class="custom-input" value="🍽️" maxlength="4">
+              </div>
+              <div class="form-group full-width">
+                <label>Описание и детали события</label>
+                <input type="text" id="evDesc" class="custom-input" placeholder="Напр. Накрытие горячих блюд, поздравление старейшин">
+              </div>
+              <div class="form-group full-width">
+                <button type="submit" class="primary-btn add-btn">
+                  <span>Добавить в таймлайн</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Конструктор участников детского конкурса -->
+          <div class="admin-section glass-card">
+            <div class="section-title-row">
+              <h3>🎭 Добавить участника в детский конкурс</h3>
+            </div>
+            <form id="addContestantForm" class="admin-form-grid">
+              <div class="form-group">
+                <label>Имя ребенка / участника</label>
+                <input type="text" id="cntName" class="custom-input" placeholder="Напр. Эмир, Алина..." required>
+              </div>
+              <div class="form-group">
+                <label>Возрастная категория</label>
+                <select id="cntCategory" class="custom-input">
+                  <option value="до 10 лет">До 10 лет</option>
+                  <option value="10–18 лет">10–18 лет (Старшие)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Костюм / Персонаж</label>
+                <input type="text" id="cntCostume" class="custom-input" placeholder="Напр. Гарри Поттер, Снежинка..." required>
+              </div>
+              <div class="form-group">
+                <label>Творческий номер</label>
+                <input type="text" id="cntAct" class="custom-input" placeholder="Напр. Песня, танец, сценка" required>
+              </div>
+              <div class="form-group full-width">
+                <button type="submit" class="primary-btn add-btn">
+                  <span>Зарегистрировать участника</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Редактор вариантов дат голосования -->
+          <div class="admin-section glass-card">
+            <div class="section-title-row">
+              <h3>📅 Добавить вариант даты для семейного голосования</h3>
+            </div>
+            <form id="addDateForm" class="admin-form-grid">
+              <div class="form-group">
+                <label>Дата / Вариант</label>
+                <input type="text" id="dateLabel" class="custom-input" placeholder="Напр. 30 декабря (вечер)" required>
+              </div>
+              <div class="form-group">
+                <label>Пояснение</label>
+                <input type="text" id="dateNote" class="custom-input" placeholder="Напр. До Нового года, чтобы все успели">
+              </div>
+              <div class="form-group full-width">
+                <button type="submit" class="primary-btn add-btn">
+                  <span>Добавить дату в опрос</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Подвал -->
+    <footer class="app-footer">
+      <p>Создано для дружной семьи • Домен <b>naiper.dev</b> • Новый Год 2027</p>
+    </footer>
+  </div>
+
+  <!-- Модальное уведомление -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js?v=2027.luxury2"></script>
+</body>
+</html>
